@@ -56,7 +56,7 @@ Instead of connecting to a remote cloud server, you run two Linux VMs on your ow
 
 | Lab | Module | Topic | Start Command | Link |
 |-----|--------|-------|---------------|------|
-| Lab 13 | Module 13 | Advanced Network Configuration | `vagrant up` (default) | [labs/lab-13/README.md](labs/lab-13/README.md) |
+| Lab 13 | Module 13 | Advanced Network Configuration | `LAB=lab-13 vagrant up` (default) | [labs/lab-13/README.md](labs/lab-13/README.md) |
 | Lab 04 | Module 4 | Building and Securing Directory Structure | `LAB=lab-04 vagrant up` | [labs/lab-04/README.md](labs/lab-04/README.md) |
 
 ### Switching Labs
