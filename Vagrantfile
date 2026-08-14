@@ -27,22 +27,11 @@ if LAB.nil? || LAB.empty?
   abort "    Example: LAB=lab-04 vagrant up"
 end
 
-# Detect host architecture to pick the right Fedora box
+# Detect host architecture (informational; box is multi-arch)
 host_arch = RUBY_PLATFORM.include?("arm64") || RUBY_PLATFORM.include?("aarch64") ? "arm64" : "x86_64"
 
-# Box selection by architecture
-BOXES = {
-  "x86_64" => {
-    "virtualbox" => "fedora/41-cloud-base",
-    "libvirt"    => "fedora/41-cloud-base",
-    "utm"        => "fedora/41-cloud-base"
-  },
-  "arm64" => {
-    "virtualbox" => "generic/fedora39",
-    "libvirt"    => "generic/fedora39",
-    "utm"        => "generic/fedora39"
-  }
-}.freeze
+# bento/fedora-latest supports VirtualBox, UTM, and libvirt on both x86_64 and ARM64
+BOX = "bento/fedora-latest"
 
 # Resolve lab-specific provision scripts, fall back to generic ones
 def lab_script(node)
@@ -61,7 +50,7 @@ Vagrant.configure("2") do |config|
 
   # ─── client node ──────────────────────────────────────────────
   config.vm.define "client" do |client|
-    client.vm.box = BOXES[host_arch]["virtualbox"]
+    client.vm.box = BOX
     client.vm.hostname = "client"
     client.vm.network "private_network",
       ip: "192.168.56.10",
@@ -92,7 +81,7 @@ Vagrant.configure("2") do |config|
 
   # ─── server node ──────────────────────────────────────────────
   config.vm.define "server" do |server|
-    server.vm.box = BOXES[host_arch]["virtualbox"]
+    server.vm.box = BOX
     server.vm.hostname = "server"
     server.vm.network "private_network",
       ip: "192.168.56.20",
