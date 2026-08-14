@@ -20,7 +20,7 @@ Open **Terminal** (Cmd+Space, type "Terminal") and run:
 
 ```bash
 brew tap hashicorp/tap
-brew install hashicorp/tap/vagrant
+brew install --cask hashicorp/tap/hashicorp-vagrant
 ```
 
 ## Step 3: Install the UTM Vagrant Plugin

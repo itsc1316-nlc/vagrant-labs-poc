@@ -16,7 +16,7 @@ Follow these steps to run the ITSC-1316 Linux lab on an Intel-based Mac (any Mac
 
 ```bash
 brew tap hashicorp/tap
-brew install hashicorp/tap/vagrant
+brew install --cask hashicorp/tap/hashicorp-vagrant
 ```
 
 **Option B — Direct download:**
