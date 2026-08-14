@@ -42,6 +42,10 @@ fi
 ln -sfn /home/vagrant/labs /home/student/labs
 chown -h student:student /home/student/labs
 
+# Make synced folders readable by all users so student can access them
+chmod -R a+rX /home/vagrant/labs 2>/dev/null || true
+chmod -R a+rX /home/vagrant/provision 2>/dev/null || true
+
 # ─── MOTD ─────────────────────────────────────────────────────
 cat > /etc/motd << 'MOTDEOF'
 
@@ -52,7 +56,12 @@ cat > /etc/motd << 'MOTDEOF'
 ║   Two-VM topology:  client (192.168.56.10)               ║
 ║                     server (192.168.56.20)               ║
 ║                                                          ║
-║   Lab files:        /home/vagrant/labs/                   ║
+║   You are logged in as: vagrant                           ║
+║   Switch to student account before starting:             ║
+║     su - student                                         ║
+║     (password: fedora)                                   ║
+║                                                          ║
+║   Lab files:        ~/labs/                              ║
 ║   Student account:  student / fedora  (passwordless sudo)║
 ║                                                          ║
 ║   Quick start:                                          ║
