@@ -67,6 +67,8 @@ Vagrant.configure("2") do |config|
       utm.name = "itsc1316-client"
       utm.cpus = 1
       utm.memory = 1024
+      utm.wait_time = 60
+      utm.check_guest_additions = false
     end
 
     client.vm.provider "libvirt" do |lv|
@@ -98,6 +100,8 @@ Vagrant.configure("2") do |config|
       utm.name = "itsc1316-server"
       utm.cpus = 1
       utm.memory = 1024
+      utm.wait_time = 60
+      utm.check_guest_additions = false
     end
 
     server.vm.provider "libvirt" do |lv|
