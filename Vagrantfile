@@ -27,11 +27,10 @@ if LAB.nil? || LAB.empty?
   abort "    Example: LAB=lab-04 vagrant up"
 end
 
-# Detect host architecture (informational; box is multi-arch)
-host_arch = RUBY_PLATFORM.include?("arm64") || RUBY_PLATFORM.include?("aarch64") ? "arm64" : "x86_64"
-
-# bento/fedora-latest supports VirtualBox, UTM, and libvirt on both x86_64 and ARM64
-BOX = "bento/fedora-latest"
+# Default box (VirtualBox, libvirt): bento/fedora-latest supports both providers
+DEFAULT_BOX = "bento/fedora-latest"
+# UTM box: utm/fedora-41 is purpose-built for vagrant_utm plugin (auto-login, guest additions)
+UTM_BOX = "utm/fedora-41"
 
 # Resolve lab-specific provision scripts, fall back to generic ones
 def lab_script(node)
@@ -50,7 +49,7 @@ Vagrant.configure("2") do |config|
 
   # ─── client node ──────────────────────────────────────────────
   config.vm.define "client" do |client|
-    client.vm.box = BOX
+    client.vm.box = DEFAULT_BOX
     client.vm.hostname = "client"
     client.vm.network "private_network",
       ip: "192.168.56.10",
@@ -63,7 +62,8 @@ Vagrant.configure("2") do |config|
       vb.linked_clone = true
     end
 
-    client.vm.provider "utm" do |utm|
+    client.vm.provider "utm" do |utm, override|
+      override.vm.box = UTM_BOX
       utm.name = "itsc1316-client"
       utm.cpus = 1
       utm.memory = 1024
@@ -83,7 +83,7 @@ Vagrant.configure("2") do |config|
 
   # ─── server node ──────────────────────────────────────────────
   config.vm.define "server" do |server|
-    server.vm.box = BOX
+    server.vm.box = DEFAULT_BOX
     server.vm.hostname = "server"
     server.vm.network "private_network",
       ip: "192.168.56.20",
@@ -96,7 +96,8 @@ Vagrant.configure("2") do |config|
       vb.linked_clone = true
     end
 
-    server.vm.provider "utm" do |utm|
+    server.vm.provider "utm" do |utm, override|
+      override.vm.box = UTM_BOX
       utm.name = "itsc1316-server"
       utm.cpus = 1
       utm.memory = 1024
