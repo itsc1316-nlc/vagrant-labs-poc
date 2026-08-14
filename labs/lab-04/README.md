@@ -482,6 +482,6 @@ Write a short shell command (one line is fine) that audits `/opt/iotbn` and repo
 ## Need Help?
 
 - **Permission denied errors?** Make sure you are using `sudo` where the lab says to.
-- **`locate` command not found?** The lab provisions `mlocate` — if it is missing, run `sudo dnf install -y mlocate && sudo updatedb`.
+- **`locate` command not found?** The lab provisions `plocate` — if it is missing, run `sudo dnf install -y plocate && sudo updatedb`.
 - **`setfacl` or `getfacl` not found?** Run `sudo dnf install -y acl`.
 - **Want to start over?** From your host machine: `vagrant destroy -f && LAB=lab-04 vagrant up` (add `--provider=utm` or `--provider=libvirt` if your setup requires it).

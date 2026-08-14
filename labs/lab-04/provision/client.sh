@@ -35,6 +35,6 @@ chmod 0440 /etc/sudoers.d/student
 
 echo "Lab 04 client provisioning complete."
 echo "  ACL tools:    acl (setfacl, getfacl)"
-echo "  File search:  mlocate (locate, updatedb)"
+echo "  File search:  plocate (locate, updatedb)"
 echo "  IOTBN groups: sysadmins, webdevs, designers, managers, creative"
 echo "  Work dir:     /opt/iotbn (ready for student to build)"
