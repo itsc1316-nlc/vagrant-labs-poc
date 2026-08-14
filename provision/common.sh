@@ -4,7 +4,7 @@
 set -euxo pipefail
 
 # ─── Package installation ─────────────────────────────────────
-dnf install -y \
+dnf install -y --skip-unavailable \
   vim \
   tmux \
   curl \
@@ -20,7 +20,6 @@ dnf install -y \
   man-db \
   man-pages \
   NetworkManager \
-  NetworkManager-cli \
   traceroute \
   mtr \
   nmap-ncat \
