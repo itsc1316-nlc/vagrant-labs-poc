@@ -17,11 +17,17 @@ Once you have Vagrant installed and this repo cloned, start the lab your instruc
 LAB=lab-13 vagrant up
 ```
 
-Replace `lab-13` with the lab you need (see the table below). Then connect to the client VM:
+Replace `lab-13` with the lab you need (see the table below).
 
-```bash
-vagrant ssh client
-```
+> **Mac with Apple Silicon (M1–M5)?** Add `--provider=utm`:
+> ```bash
+> LAB=lab-13 vagrant up --provider=utm
+> ```
+
+> **Linux with KVM/libvirt?** Add `--provider=libvirt`:
+> ```bash
+> LAB=lab-13 vagrant up --provider=libvirt
+> ```
 
 Then connect to the client VM:
 
@@ -70,7 +76,7 @@ vagrant destroy -f
 LAB=lab-04 vagrant up
 ```
 
-You must destroy and rebuild when switching labs so the new provisioning scripts run cleanly.
+You must destroy and rebuild when switching labs so the new provisioning scripts run cleanly. Add `--provider=utm` or `--provider=libvirt` if your setup requires it.
 
 ## Rebuild From Scratch
 
@@ -80,7 +86,7 @@ If something breaks or you want a clean start:
 vagrant destroy -f && LAB=lab-13 vagrant up
 ```
 
-Replace `lab-13` with the lab you are working on. This deletes both VMs and rebuilds them from scratch. Your lab files on your host computer are not affected.
+Replace `lab-13` with the lab you are working on (add `--provider=utm` or `--provider=libvirt` if your setup requires it). This deletes both VMs and rebuilds them from scratch. Your lab files on your host computer are not affected.
 
 
 ## Troubleshooting
