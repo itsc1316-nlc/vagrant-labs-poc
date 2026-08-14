@@ -19,12 +19,27 @@
 require "pathname"
 require "fileutils"
 
-# Which lab to provision for — required, no default
+# Which lab to provision for.
+# On `vagrant up`, LAB env var is required and saved to .vagrant/lab.
+# On subsequent commands (ssh, status, halt, etc.), the saved value is loaded
+# automatically so students don't need to pass LAB= every time.
 LAB = ENV["LAB"]
+LAB_FILE = File.expand_path(".vagrant/lab", __dir__)
+
 if LAB.nil? || LAB.empty?
-  abort "==> ERROR: You must specify a lab using the LAB environment variable."
-  abort "    Example: LAB=lab-13 vagrant up"
-  abort "    Example: LAB=lab-04 vagrant up"
+  # Try to load the previously saved lab
+  if File.exist?(LAB_FILE)
+    LAB = File.read(LAB_FILE).strip
+  else
+    abort "==> ERROR: You must specify a lab using the LAB environment variable."
+    abort "    Example: LAB=lab-13 vagrant up"
+    abort "    Example: LAB=lab-04 vagrant up"
+  end
+else
+  # Save the lab for future commands
+  lab_dir = File.dirname(LAB_FILE)
+  Dir.mkdir(lab_dir) unless Dir.exist?(lab_dir)
+  File.write(LAB_FILE, LAB)
 end
 
 # Default box (VirtualBox, libvirt): bento/fedora-latest supports both providers
