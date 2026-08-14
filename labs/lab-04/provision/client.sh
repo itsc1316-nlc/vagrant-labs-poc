@@ -5,13 +5,14 @@
 set -euxo pipefail
 
 # ─── Lab-specific packages ────────────────────────────────────
-dnf install -y \
+dnf install -y --skip-unavailable \
   acl \
-  mlocate \
+  plocate \
   tree
 
 # Update the locate database so 'locate' works immediately
-updatedb
+# plocate may need updatedb from the plocate package
+updatedb 2>/dev/null || plocate.updatedb 2>/dev/null || true
 
 # ─── Create IOTBN groups ──────────────────────────────────────
 # These are the groups the lab uses for ownership/permissions exercises
