@@ -29,8 +29,10 @@ if [ ! -f "$STUDENT_HOME/.ssh/id_ed25519" ]; then
 fi
 
 # Add server's host key to known_hosts so SSH does not prompt
-sudo -u student bash -c "ssh-keyscan -H 192.168.56.20 server.corp.local 2>/dev/null >> ~/.ssh/known_hosts"
-sudo -u student bash -c "ssh-keyscan -H 192.168.56.10 client.corp.local 2>/dev/null >> ~/.ssh/known_hosts"
+# These may fail if the server isn't up yet — that's fine, SSH will
+# fall back to StrictHostKeyChecking=no in the SSH config below.
+sudo -u student bash -c "ssh-keyscan -H 192.168.56.20 server.corp.local 2>/dev/null >> ~/.ssh/known_hosts" || true
+sudo -u student bash -c "ssh-keyscan -H 192.168.56.10 client.corp.local 2>/dev/null >> ~/.ssh/known_hosts" || true
 
 # Ensure correct ownership
 chown -R student:student "$STUDENT_HOME/.ssh"
