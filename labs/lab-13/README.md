@@ -33,15 +33,14 @@
 > ```bash
 > LAB=lab-13 vagrant up
 > ```
-> (Or just `vagrant up` — lab-13 is the default.)
+> (Replace `lab-13` with your assigned lab if different.)
 
 1. Make sure both VMs are running:
 
    ```bash
    vagrant status
    ```
-
-   If either is down, run `vagrant up`.
+   If either is down, run `LAB=lab-13 vagrant up`.
 
 2. Log into the **client** VM:
 
@@ -233,4 +232,4 @@ See [rubric.md](rubric.md) for the full grading criteria.
 - **Can't reach the server?** Run `vagrant reload server` and wait for it to come back up.
 - **DNS not resolving?** Check that the server's `dnsmasq` service is running: `vagrant ssh server -c "systemctl status dnsmasq"`
 - **SSH to server fails?** From the client as `student`: `ssh student@192.168.56.20`
-- **Want to start over?** From your host machine: `vagrant destroy -f && vagrant up`
+- **Want to start over?** From your host machine: `vagrant destroy -f && LAB=lab-13 vagrant up`

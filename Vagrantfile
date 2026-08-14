@@ -10,7 +10,7 @@
 #   - libvirt    (Linux KVM alternative)
 #
 # Lab selection:
-#   LAB=lab-13 vagrant up    # provisions for the networking lab (default)
+#   LAB=lab-13 vagrant up    # provisions for the networking lab
 #   LAB=lab-04 vagrant up    # provisions for the filesystem lab
 #
 # If labs/{LAB}/provision/{client,server}.sh exist, they override the
@@ -19,8 +19,13 @@
 require "pathname"
 require "fileutils"
 
-# Which lab to provision for (default: lab-13)
-LAB = ENV["LAB"] || "lab-13"
+# Which lab to provision for — required, no default
+LAB = ENV["LAB"]
+if LAB.nil? || LAB.empty?
+  abort "==> ERROR: You must specify a lab using the LAB environment variable."
+  abort "    Example: LAB=lab-13 vagrant up"
+  abort "    Example: LAB=lab-04 vagrant up"
+end
 
 # Detect host architecture to pick the right Fedora box
 host_arch = RUBY_PLATFORM.include?("arm64") || RUBY_PLATFORM.include?("aarch64") ? "arm64" : "x86_64"

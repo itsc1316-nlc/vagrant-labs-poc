@@ -48,16 +48,12 @@ sudo pacman -S vagrant
 ### Step 3: Clone and Start
 
 ```bash
-git clone https://github.com/itsc1316/linux_lab_poc.git
-cd linux_lab_poc
-vagrant up
+git clone https://github.com/itsc1316-nlc/vagrant-labs-poc.git
+cd vagrant-labs-poc
+LAB=lab-13 vagrant up
 ```
 
-> If your instructor told you to use a specific lab (not the default), run:
-> ```bash
-> LAB=lab-04 vagrant up
-> ```
-> Replace `lab-04` with the lab your instructor assigned.
+Replace `lab-13` with the lab your instructor assigned (see the Available Labs table in the README).
 
 ---
 
@@ -86,22 +82,18 @@ Log out and log back in for the group change to take effect.
 ### Step 2: Clone and Start
 
 ```bash
-git clone https://github.com/itsc1316/linux_lab_poc.git
-cd linux_lab_poc
-vagrant up --provider=libvirt
+git clone https://github.com/itsc1316-nlc/vagrant-labs-poc.git
+cd vagrant-labs-poc
+LAB=lab-13 vagrant up --provider=libvirt
 ```
 
-> If your instructor told you to use a specific lab (not the default), run:
-> ```bash
-> LAB=lab-04 vagrant up --provider=libvirt
-> ```
-> Replace `lab-04` with the lab your instructor assigned.
+Replace `lab-13` with the lab your instructor assigned (see the Available Labs table in the README).
 
 ---
 
 ## Connect to the Client VM
 
-After `vagrant up` finishes:
+After `LAB=lab-13 vagrant up` finishes:
 
 ```bash
 vagrant ssh client
@@ -126,5 +118,5 @@ vagrant halt
 To delete and rebuild from scratch:
 
 ```bash
-vagrant destroy -f && vagrant up
+vagrant destroy -f && LAB=lab-13 vagrant up
 ```

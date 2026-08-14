@@ -34,8 +34,8 @@ vagrant plugin install vagrant_utm
 Still in Terminal:
 
 ```bash
-git clone https://github.com/itsc1316/linux_lab_poc.git
-cd linux_lab_poc
+git clone https://github.com/itsc1316-nlc/vagrant-labs-poc.git
+cd vagrant-labs-poc
 ```
 
 > If your instructor gave you a different URL, use that instead.
@@ -43,16 +43,12 @@ cd linux_lab_poc
 ## Step 5: Start the Lab
 
 ```bash
-vagrant up --provider=utm
+LAB=lab-13 vagrant up --provider=utm
 ```
 
-This downloads and configures two Fedora Linux VMs using UTM. The first run takes 10–20 minutes. Let it finish.
+Replace `lab-13` with the lab your instructor assigned (see the Available Labs table in the README).
 
-> If your instructor told you to use a specific lab (not the default), run:
-> ```bash
-> LAB=lab-04 vagrant up --provider=utm
-> ```
-> Replace `lab-04` with the lab your instructor assigned.
+This downloads and configures two Fedora Linux VMs using UTM. The first run takes 10–20 minutes. Let it finish.
 
 > If you see an error about the provider, make sure UTM is open and running in the background.
 
@@ -81,5 +77,7 @@ vagrant halt
 To delete and rebuild from scratch:
 
 ```bash
-vagrant destroy -f && vagrant up --provider=utm
+vagrant destroy -f && LAB=lab-13 vagrant up --provider=utm
 ```
+
+Replace `lab-13` with the lab you are working on.

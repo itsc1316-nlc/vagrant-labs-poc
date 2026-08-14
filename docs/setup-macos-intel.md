@@ -30,8 +30,8 @@ brew install hashicorp/tap/vagrant
 Open **Terminal** (Cmd+Space, type "Terminal") and run:
 
 ```bash
-git clone https://github.com/itsc1316/linux_lab_poc.git
-cd linux_lab_poc
+git clone https://github.com/itsc1316-nlc/vagrant-labs-poc.git
+cd vagrant-labs-poc
 ```
 
 > If your instructor gave you a different URL, use that instead.
@@ -39,16 +39,12 @@ cd linux_lab_poc
 ## Step 4: Start the Lab
 
 ```bash
-vagrant up
+LAB=lab-13 vagrant up
 ```
 
-This downloads and configures two Fedora Linux VMs. The first run takes 10–20 minutes. Let it finish.
+Replace `lab-13` with the lab your instructor assigned (see the Available Labs table in the README).
 
-> If your instructor told you to use a specific lab (not the default), run:
-> ```bash
-> LAB=lab-04 vagrant up
-> ```
-> Replace `lab-04` with the lab your instructor assigned.
+This downloads and configures two Fedora Linux VMs. The first run takes 10–20 minutes. Let it finish.
 
 ## Step 5: Connect to the Client VM
 
@@ -74,6 +70,7 @@ vagrant halt
 
 To delete and rebuild from scratch:
 
-```bash
-vagrant destroy -f && vagrant up
+vagrant destroy -f && LAB=lab-13 vagrant up
 ```
+
+Replace `lab-13` with the lab you are working on.
