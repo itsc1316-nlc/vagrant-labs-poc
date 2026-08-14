@@ -37,14 +37,12 @@ if ! id student &>/dev/null; then
   chmod 0440 /etc/sudoers.d/student
 fi
 
-# Ensure student can access lab files. Vagrant syncs labs/ to /home/vagrant/labs,
-# but the student user's home is /home/student. Symlink so ~/labs resolves correctly.
-ln -sfn /home/vagrant/labs /home/student/labs
+# Vagrant syncs labs/ to /opt/labs (world-readable). Symlink ~/labs
+# for both vagrant and student users so they can cd ~/labs/lab-XX.
+ln -sfn /opt/labs /home/vagrant/labs
+ln -sfn /opt/labs /home/student/labs
 chown -h student:student /home/student/labs
-
-# Make synced folders readable by all users so student can access them
-chmod -R a+rX /home/vagrant/labs 2>/dev/null || true
-chmod -R a+rX /home/vagrant/provision 2>/dev/null || true
+chmod -R a+rX /opt/labs 2>/dev/null || true
 
 # ─── MOTD ─────────────────────────────────────────────────────
 cat > /etc/motd << 'MOTDEOF'

@@ -55,7 +55,7 @@ def lab_script(node)
 end
 
 Vagrant.configure("2") do |config|
-  config.vm.synced_folder "labs/", "/home/vagrant/labs"
+  config.vm.synced_folder "labs/", "/opt/labs"
   config.vm.synced_folder "provision/", "/vagrant-provision"
 
   # Common provisioning: common.sh runs first on every node
