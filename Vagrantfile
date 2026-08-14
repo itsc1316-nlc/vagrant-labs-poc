@@ -65,8 +65,8 @@ Vagrant.configure("2") do |config|
 
     client.vm.provider "utm" do |utm|
       utm.name = "itsc1316-client"
-      utm.cpu_count = 1
-      utm.memory_size = 1024
+      utm.cpus = 1
+      utm.memory = 1024
     end
 
     client.vm.provider "libvirt" do |lv|
@@ -96,8 +96,8 @@ Vagrant.configure("2") do |config|
 
     server.vm.provider "utm" do |utm|
       utm.name = "itsc1316-server"
-      utm.cpu_count = 1
-      utm.memory_size = 1024
+      utm.cpus = 1
+      utm.memory = 1024
     end
 
     server.vm.provider "libvirt" do |lv|
