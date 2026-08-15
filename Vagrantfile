@@ -12,7 +12,7 @@
 #   PROFILE=single vagrant up    # one VM (filesystem, permissions, shell labs)
 #   PROFILE=dual vagrant up      # two VMs — client + server (networking labs)
 #
-# See README.md for the lab-to-profile cross-reference table.
+# See README.md for the profile descriptions.
 
 require "pathname"
 require "fileutils"
@@ -45,14 +45,13 @@ unless %w[single dual].include?(PROFILE_LOADED)
   abort "==> ERROR: Invalid profile '#{PROFILE_LOADED}'. Use 'single' or 'dual'."
 end
 
-# UTM does not support private_network — dual profile requires VirtualBox or libvirt
-if PROFILE_LOADED == "dual" && (ARGV.include?("--provider=utm") || ARGV.include?("utm"))
-  abort "==> ERROR: The dual profile is not supported with the UTM provider."
-  abort "    UTM does not support private networks between VMs."
-  abort "    Use VirtualBox (macOS Intel) or libvirt (Linux) for the dual profile."
-  abort "    On Apple Silicon, dual profile is not available — use single profile instead."
-end
+# Socket path for UTM dual-profile inter-VM networking
+# QEMU socket networking creates a virtual L2 link between the two VMs
+UTM_SOCK_DIR = File.expand_path(".vagrant/utm-sock", __dir__)
+UTM_SOCK_PATH = "#{UTM_SOCK_DIR}/itsc1316.sock"
 
+# Create the socket directory for UTM dual-profile inter-VM networking
+FileUtils.mkdir_p(UTM_SOCK_DIR) if PROFILE_LOADED == "dual"
 # Default box (VirtualBox, libvirt): bento/fedora-latest supports both providers
 DEFAULT_BOX = "bento/fedora-latest"
 # UTM box: utm/fedora-41 is purpose-built for vagrant_utm plugin (auto-login, guest additions)
@@ -65,47 +64,9 @@ Vagrant.configure("2") do |config|
   config.vm.provision "common", type: "shell",
     path: "provision/common.sh"
 
-  # ─── client node (always defined) ────────────────────────────
-  config.vm.define "client" do |client|
-    client.vm.box = DEFAULT_BOX
-    client.vm.hostname = "client"
-    client.vm.network "private_network",
-      ip: "192.168.56.10",
-      virtualbox__intnet: "itsc1316net"
-
-    client.vm.provider "virtualbox" do |vb|
-      vb.name = "itsc1316-client"
-      vb.cpus = 1
-      vb.memory = 1024
-      vb.linked_clone = true
-    end
-
-    client.vm.provider "utm" do |utm, override|
-      override.vm.box = UTM_BOX
-      utm.name = "itsc1316-client"
-      utm.cpus = 1
-      utm.memory = 1024
-      utm.wait_time = 60
-      utm.check_guest_additions = false
-    end
-
-    client.vm.provider "libvirt" do |lv|
-      lv.cpus = 1
-      lv.memory = 1024
-      lv.random_hostname = true
-    end
-
-    # Profile-specific client provisioning
-    if PROFILE_LOADED == "single"
-      client.vm.provision "profile-client", type: "shell",
-        path: "provision/single.sh"
-    else
-      client.vm.provision "profile-client", type: "shell",
-        path: "provision/dual-client.sh"
-    end
-  end
-
-  # ─── server node (only for dual profile) ─────────────────────
+  # ─── server node (defined first for dual profile so it boots first) ──
+  # On UTM, the server listens on the QEMU socket and the client connects.
+  # The server must be up before the client starts, so we define it first.
   if PROFILE_LOADED == "dual"
     config.vm.define "server" do |server|
       server.vm.box = DEFAULT_BOX
@@ -128,6 +89,14 @@ Vagrant.configure("2") do |config|
         utm.memory = 1024
         utm.wait_time = 60
         utm.check_guest_additions = false
+
+        # Server listens on the QEMU socket — client connects to it.
+        # This creates a shared L2 segment where static IPs 192.168.56.x work.
+        utm.customize "pre-boot", [
+          "add_qemu_additional_args.applescript", :id,
+          "--args", "-netdev socket,id=labnet,listen=#{UTM_SOCK_PATH}",
+          "--args", "-device", "virtio-net-pci,netdev=labnet,mac=52:54:00:12:34:20"
+        ]
       end
 
       server.vm.provider "libvirt" do |lv|
@@ -138,6 +107,56 @@ Vagrant.configure("2") do |config|
 
       server.vm.provision "profile-server", type: "shell",
         path: "provision/dual-server.sh"
+    end
+  end
+
+  # ─── client node (always defined; boots after server in dual profile) ──
+  config.vm.define "client" do |client|
+    client.vm.box = DEFAULT_BOX
+    client.vm.hostname = "client"
+    client.vm.network "private_network",
+      ip: "192.168.56.10",
+      virtualbox__intnet: "itsc1316net"
+
+    client.vm.provider "virtualbox" do |vb|
+      vb.name = "itsc1316-client"
+      vb.cpus = 1
+      vb.memory = 1024
+      vb.linked_clone = true
+    end
+
+    client.vm.provider "utm" do |utm, override|
+      override.vm.box = UTM_BOX
+      utm.name = "itsc1316-client"
+      utm.cpus = 1
+      utm.memory = 1024
+      utm.wait_time = 60
+      utm.check_guest_additions = false
+
+      # For dual profile: connect to the server's QEMU socket.
+      # The server must be started first so the socket exists.
+      if PROFILE_LOADED == "dual"
+        utm.customize "pre-boot", [
+          "add_qemu_additional_args.applescript", :id,
+          "--args", "-netdev socket,id=labnet,connect=#{UTM_SOCK_PATH}",
+          "--args", "-device", "virtio-net-pci,netdev=labnet,mac=52:54:00:12:34:10"
+        ]
+      end
+    end
+
+    client.vm.provider "libvirt" do |lv|
+      lv.cpus = 1
+      lv.memory = 1024
+      lv.random_hostname = true
+    end
+
+    # Profile-specific client provisioning
+    if PROFILE_LOADED == "single"
+      client.vm.provision "profile-client", type: "shell",
+        path: "provision/single.sh"
+    else
+      client.vm.provision "profile-client", type: "shell",
+        path: "provision/dual-client.sh"
     end
   end
 end

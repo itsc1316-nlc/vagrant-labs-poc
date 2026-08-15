@@ -5,6 +5,33 @@
 # Idempotent: safe to run multiple times
 set -euxo pipefail
 
+# ─── Assign static IP on the lab network interface ───────────
+# The QEMU socket NIC has a specific MAC and no IPv4 address at boot.
+# On VirtualBox/libvirt, the private_network already has the IP.
+LAB_IP="192.168.56.10"
+LAB_MAC="52:54:00:12:34:10"
+
+# If the IP is already assigned, we're done
+if ip -4 addr show | grep -q "$LAB_IP"; then
+  echo "IP $LAB_IP already assigned, skipping."
+else
+  # Find the interface matching our QEMU socket NIC MAC
+  LAB_IFACE=""
+  for iface in $(ls /sys/class/net/ | grep -v lo); do
+    mac=$(cat /sys/class/net/"$iface"/address 2>/dev/null || echo "")
+    if [ "$mac" = "$LAB_MAC" ]; then
+      LAB_IFACE="$iface"
+      break
+    fi
+  done
+
+  if [ -n "$LAB_IFACE" ]; then
+    ip addr add "${LAB_IP}/24" dev "$LAB_IFACE"
+    ip link set "$LAB_IFACE" up
+    echo "Assigned $LAB_IP to $LAB_IFACE (MAC: $LAB_MAC)"
+  fi
+fi
+
 # ─── Point client DNS at the server's dnsmasq ────────────────
 cat > /etc/resolv.conf << 'DNS_EOF'
 nameserver 192.168.56.20
