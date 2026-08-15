@@ -6,7 +6,8 @@
 set -euxo pipefail
 
 # ─── Assign static IP on the lab network interface ───────────
-# The QEMU socket NIC has a specific MAC and no IPv4 address at boot.
+# The QEMU socket NIC has a specific MAC. We use nmcli to create a
+# persistent connection profile so NetworkManager keeps the IP.
 # On VirtualBox/libvirt, the private_network already has the IP.
 LAB_IP="192.168.56.20"
 LAB_MAC="52:54:00:12:34:20"
@@ -26,7 +27,11 @@ else
   done
 
   if [ -n "$LAB_IFACE" ]; then
-    ip addr add "${LAB_IP}/24" dev "$LAB_IFACE"
+    # Create a persistent nmcli connection so the IP survives NetworkManager
+    nmcli con add type ethernet con-name labnet ifname "$LAB_IFACE" ipv4.method manual ipv4.addresses "${LAB_IP}/24" 2>/dev/null || true
+    nmcli con up labnet 2>/dev/null || true
+    # Fallback: direct ip command if nmcli fails
+    ip addr add "${LAB_IP}/24" dev "$LAB_IFACE" 2>/dev/null || true
     ip link set "$LAB_IFACE" up
     echo "Assigned $LAB_IP to $LAB_IFACE (MAC: $LAB_MAC)"
   fi
