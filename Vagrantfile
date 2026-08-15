@@ -45,13 +45,11 @@ unless %w[single dual].include?(PROFILE_LOADED)
   abort "==> ERROR: Invalid profile '#{PROFILE_LOADED}'. Use 'single' or 'dual'."
 end
 
-# Socket path for UTM dual-profile inter-VM networking
-# QEMU socket networking creates a virtual L2 link between the two VMs
-UTM_SOCK_DIR = File.expand_path(".vagrant/utm-sock", __dir__)
-UTM_SOCK_PATH = "#{UTM_SOCK_DIR}/itsc1316.sock"
-
-# Create the socket directory for UTM dual-profile inter-VM networking
-FileUtils.mkdir_p(UTM_SOCK_DIR) if PROFILE_LOADED == "dual"
+# TCP port for UTM dual-profile inter-VM networking.
+# QEMU socket netdev on macOS uses TCP (host:port), not Unix sockets.
+# The server listens on localhost:4444; the client connects to it.
+# This creates a shared L2 segment where static IPs 192.168.56.x work.
+UTM_NET_PORT = 4444
 # Default box (VirtualBox, libvirt): bento/fedora-latest supports both providers
 DEFAULT_BOX = "bento/fedora-latest"
 # UTM box: utm/fedora-41 is purpose-built for vagrant_utm plugin (auto-login, guest additions)
@@ -94,7 +92,7 @@ Vagrant.configure("2") do |config|
         # This creates a shared L2 segment where static IPs 192.168.56.x work.
         utm.customize "pre-boot", [
           "add_qemu_additional_args.applescript", :id,
-          "--args", "-netdev socket,id=labnet,listen=#{UTM_SOCK_PATH}",
+          "--args", "-netdev socket,id=labnet,listen=127.0.0.1:#{UTM_NET_PORT}",
           "--args", "-device", "virtio-net-pci,netdev=labnet,mac=52:54:00:12:34:20"
         ]
       end
@@ -138,7 +136,7 @@ Vagrant.configure("2") do |config|
       if PROFILE_LOADED == "dual"
         utm.customize "pre-boot", [
           "add_qemu_additional_args.applescript", :id,
-          "--args", "-netdev socket,id=labnet,connect=#{UTM_SOCK_PATH}",
+          "--args", "-netdev socket,id=labnet,connect=127.0.0.1:#{UTM_NET_PORT}",
           "--args", "-device", "virtio-net-pci,netdev=labnet,mac=52:54:00:12:34:10"
         ]
       end
