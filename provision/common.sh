@@ -44,11 +44,11 @@ ln -sfn /opt/labs /home/student/labs
 chown -h student:student /home/student/labs
 chmod -R a+rX /opt/labs 2>/dev/null || true
 
-# ─── MOTD ─────────────────────────────────────────────────────
+# ─── MOTD (generic — lab-specific scripts overwrite this) ─────
 cat > /etc/motd << 'MOTDEOF'
 
 ╔══════════════════════════════════════════════════════════╗
-║   ITSC-1316 Linux Primary Shell — Network Lab Environment ║
+║   ITSC-1316 Linux Primary Shell — Lab Environment         ║
 ╠══════════════════════════════════════════════════════════╣
 ║                                                          ║
 ║   Two-VM topology:  client (192.168.56.10)               ║
@@ -62,8 +62,10 @@ cat > /etc/motd << 'MOTDEOF'
 ║   Lab files:        ~/labs/                              ║
 ║   Student account:  student / fedora  (passwordless sudo)║
 ║                                                          ║
-║   Quick start:                                          ║
-║     cd ~/labs/lab-13                                    ║
+║   See your lab README for instructions:                  ║
+║     cd ~/labs/                                          ║
+║     ls                                                  ║
+║     cd lab-XX                                           ║
 ║     cat README.md                                       ║
 ║                                                          ║
 ╚══════════════════════════════════════════════════════════╝

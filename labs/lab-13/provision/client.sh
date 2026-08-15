@@ -61,8 +61,35 @@ chmod 600 "$STUDENT_HOME/.ssh/config"
 # ─── Firewall: allow SSH outbound (default) ──────────────────
 firewall-cmd --permanent --add-service=ssh
 firewall-cmd --reload
-
 echo "Client provisioning complete."
 echo "  DNS server:  192.168.56.20 (server)"
 echo "  Search domain: corp.local"
 echo "  SSH to server: ssh student@server  (or: ssh student@server.corp.local)"
+
+# ─── Lab-specific MOTD ──────────────────────────────────────
+cat > /etc/motd << 'MOTDEOF'
+
+╔══════════════════════════════════════════════════════════╗
+║   ITSC-1316 Linux Primary Shell — Lab 13                   ║
+║   Advanced Network Configuration                           ║
+╠══════════════════════════════════════════════════════════╣
+║                                                          ║
+║   Two-VM topology:  client (192.168.56.10)               ║
+║                     server (192.168.56.20)               ║
+║   Server runs:      dnsmasq (DNS), httpd (web)           ║
+║                                                          ║
+║   You are logged in as: vagrant                           ║
+║   Switch to student account before starting:             ║
+║     su - student                                         ║
+║     (password: fedora)                                   ║
+║                                                          ║
+║   Lab files:        ~/labs/lab-13/                       ║
+║   Student account:  student / fedora  (passwordless sudo)║
+║                                                          ║
+║   Quick start:                                          ║
+║     cd ~/labs/lab-13                                    ║
+║     cat README.md                                       ║
+║                                                          ║
+╚══════════════════════════════════════════════════════════╝
+
+MOTDEOF

@@ -38,3 +38,31 @@ echo "  ACL tools:    acl (setfacl, getfacl)"
 echo "  File search:  plocate (locate, updatedb)"
 echo "  IOTBN groups: sysadmins, webdevs, designers, managers, creative"
 echo "  Work dir:     /opt/iotbn (ready for student to build)"
+
+# ─── Lab-specific MOTD ──────────────────────────────────────
+cat > /etc/motd << 'MOTDEOF'
+
+╔══════════════════════════════════════════════════════════╗
+║   ITSC-1316 Linux Primary Shell — Lab 04                   ║
+║   Building and Securing Directory Structure                ║
+╠══════════════════════════════════════════════════════════╣
+║                                                          ║
+║   Two-VM topology:  client (192.168.56.10)               ║
+║                     server (192.168.56.20)               ║
+║   This lab runs on the client VM only.                   ║
+║                                                          ║
+║   You are logged in as: vagrant                           ║
+║   Switch to student account before starting:             ║
+║     su - student                                         ║
+║     (password: fedora)                                   ║
+║                                                          ║
+║   Lab files:        ~/labs/lab-04/                       ║
+║   Student account:  student / fedora  (passwordless sudo)║
+║                                                          ║
+║   Quick start:                                          ║
+║     cd ~/labs/lab-04                                    ║
+║     cat README.md                                       ║
+║                                                          ║
+╚══════════════════════════════════════════════════════════╝
+
+MOTDEOF
