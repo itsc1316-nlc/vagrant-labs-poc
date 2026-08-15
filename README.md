@@ -89,6 +89,34 @@ When in doubt, check your lab instructions on Canvas or ask your instructor.
 └──────────────────────────────────────────────┘
 ```
 
+## After You Log In
+
+When you run `vagrant ssh client`, you will see a banner with instructions. Before starting your lab:
+
+```bash
+su - student
+```
+
+Password: `fedora`
+
+The `student` account has passwordless sudo. Your lab instructions are on Canvas — open them in your web browser and follow the steps in your VM.
+
+## Exiting the VM
+
+When you are done working inside the VM, first log out of the student account:
+
+```bash
+exit
+```
+
+Then log out of the vagrant session to return to your host computer:
+
+```bash
+exit
+```
+
+You are now back on your own computer. Vagrant commands like `vagrant halt` and `vagrant destroy` only work from your host computer — **not from inside the VM**.
+
 ## Switching Profiles
 
 Each profile configures the VMs differently. To switch profiles:
@@ -112,17 +140,6 @@ vagrant destroy -f && PROFILE=single vagrant up
 
 Replace `single` with the profile you are working on (add `--provider=utm` or `--provider=libvirt` if your setup requires it). This deletes the VM(s) and rebuilds them from scratch.
 
-## After You Log In
-
-When you run `vagrant ssh client`, you will see a banner with instructions. Before starting your lab:
-
-```bash
-su - student
-```
-
-Password: `fedora`
-
-The `student` account has passwordless sudo. Your lab instructions are on Canvas — open them in your web browser and follow the steps in your VM.
 
 ## Troubleshooting
 

@@ -107,6 +107,17 @@ su - student
 
 Password: `fedora`
 
+## Exiting the VM
+
+When you are done working inside the VM, type `exit` twice — once to log out of the student account, and once to leave the VM:
+
+```bash
+exit
+exit
+```
+
+You are now back on your own computer. Vagrant commands like `vagrant halt` only work here — **not from inside the VM**.
+
 ## When You Are Done
 
 To shut down the VM(s):
