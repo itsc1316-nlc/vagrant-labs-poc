@@ -21,14 +21,11 @@ cat > /etc/motd << 'MOTDEOF'
 ║     su - student                                         ║
 ║     (password: fedora)                                   ║
 ║                                                          ║
-║   Lab files:        ~/labs/                              ║
 ║   Student account:  student / fedora  (passwordless sudo)║
 ║                                                          ║
-║   Quick start:                                          ║
-║     cd ~/labs/                                          ║
-║     ls                                                  ║
-║     cd lab-XX                                           ║
-║     cat README.md                                       ║
+║   Lab instructions are on Canvas.                         ║
+║   Open your assignment in a web browser and               ║
+║   follow the steps in this terminal.                      ║
 ║                                                          ║
 ╚══════════════════════════════════════════════════════════╝
 

@@ -28,21 +28,23 @@ Then connect to the client VM:
 vagrant ssh client
 ```
 
-## Lab-to-Profile Cross-Reference
+## Profiles
 
-Each lab uses one of two VM profiles. Check which profile your lab needs before starting.
-
-| Lab | Module | Topic | Profile | Lab Link |
-|-----|--------|-------|---------|----------|
-| Lab 04 | Module 4 | Building and Securing Directory Structure | `single` | [labs/lab-04/README.md](labs/lab-04/README.md) |
-| Lab 13 | Module 13 | Advanced Network Configuration | `dual` | [labs/lab-13/README.md](labs/lab-13/README.md) |
-
-### Profile Descriptions
+Each lab in the course uses one of two VM profiles. Check which profile your lab needs before starting.
 
 | Profile | VMs | What It Provides | Start Command |
 |---------|-----|------------------|---------------|
-| `single` | 1 VM (client) | Fedora VM with ACL tools, plocate, IOTBN groups, /opt/iotbn directory. Student does all work on one machine. | `PROFILE=single vagrant up` |
+| `single` | 1 VM (client) | Fedora VM with full toolset: ACL tools, plocate, IOTBN groups, /opt/iotbn directory, networking utilities. Student does all work on one machine. | `PROFILE=single vagrant up` |
 | `dual` | 2 VMs (client + server) | Same as single plus a server VM running dnsmasq (DNS) and httpd (web server) on a private network. For labs that need cross-machine networking. | `PROFILE=dual vagrant up` |
+
+### Which Profile Should I Use?
+
+| Profile | Used For | Examples |
+|---------|----------|----------|
+| `single` | Filesystem navigation, permissions, ACLs, shell scripting, file management, process management, system initialization | Modules 2, 3, 4, 5, 7, 10, 11, 12 |
+| `dual` | Networking, DNS, routing, client-server connectivity, troubleshooting across machines | Modules 9, 13, 14 |
+
+When in doubt, check your lab instructions on Canvas or ask your instructor.
 
 ## Topology
 
@@ -108,7 +110,19 @@ If something breaks or you want a clean start:
 vagrant destroy -f && PROFILE=single vagrant up
 ```
 
-Replace `single` with the profile you are working on (add `--provider=utm` or `--provider=libvirt` if your setup requires it). This deletes the VM(s) and rebuilds them from scratch. Your lab files on your host computer are not affected.
+Replace `single` with the profile you are working on (add `--provider=utm` or `--provider=libvirt` if your setup requires it). This deletes the VM(s) and rebuilds them from scratch.
+
+## After You Log In
+
+When you run `vagrant ssh client`, you will see a banner with instructions. Before starting your lab:
+
+```bash
+su - student
+```
+
+Password: `fedora`
+
+The `student` account has passwordless sudo. Your lab instructions are on Canvas — open them in your web browser and follow the steps in your VM.
 
 ## Troubleshooting
 
@@ -122,7 +136,6 @@ Replace `single` with the profile you are working on (add `--provider=utm` or `-
 | **DNS resolution fails from client** | Check that the server is running: `vagrant status`. Then: `vagrant ssh server -c "systemctl status dnsmasq"`. If dnsmasq is down, run `vagrant reload server`. |
 | **`vagrant ssh` says connection refused** | The VM may still be booting. Wait 30 seconds and try again. If it persists, `vagrant reload`. |
 | **Apple Silicon: UTM not found** | Make sure UTM is installed and has been opened at least once. Verify: `vagrant plugin list` shows `vagrant_utm`. |
-| **Lab files not accessible as student user** | Run `vagrant provision` to re-run the setup scripts, or `vagrant destroy -f && PROFILE=single vagrant up`. |
 
 ## Requirements
 

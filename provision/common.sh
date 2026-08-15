@@ -53,11 +53,3 @@ mkdir -p /opt/iotbn
 
 # ─── Update locate database ───────────────────────────────────
 updatedb 2>/dev/null || plocate.updatedb 2>/dev/null || true
-
-# ─── Lab files accessible to both users ───────────────────────
-# Vagrant syncs labs/ to /opt/labs (world-readable). Symlink ~/labs
-# for both vagrant and student users so they can cd ~/labs/lab-XX.
-ln -sfn /opt/labs /home/vagrant/labs
-ln -sfn /opt/labs /home/student/labs
-chown -h student:student /home/student/labs
-chmod -R a+rX /opt/labs 2>/dev/null || true
