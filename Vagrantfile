@@ -45,6 +45,14 @@ unless %w[single dual].include?(PROFILE_LOADED)
   abort "==> ERROR: Invalid profile '#{PROFILE_LOADED}'. Use 'single' or 'dual'."
 end
 
+# UTM does not support private_network — dual profile requires VirtualBox or libvirt
+if PROFILE_LOADED == "dual" && (ARGV.include?("--provider=utm") || ARGV.include?("utm"))
+  abort "==> ERROR: The dual profile is not supported with the UTM provider."
+  abort "    UTM does not support private networks between VMs."
+  abort "    Use VirtualBox (macOS Intel) or libvirt (Linux) for the dual profile."
+  abort "    On Apple Silicon, dual profile is not available — use single profile instead."
+end
+
 # Default box (VirtualBox, libvirt): bento/fedora-latest supports both providers
 DEFAULT_BOX = "bento/fedora-latest"
 # UTM box: utm/fedora-41 is purpose-built for vagrant_utm plugin (auto-login, guest additions)

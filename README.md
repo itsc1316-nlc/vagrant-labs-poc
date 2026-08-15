@@ -35,7 +35,9 @@ Each lab in the course uses one of two VM profiles. Check which profile your lab
 | Profile | VMs | What It Provides | Start Command |
 |---------|-----|------------------|---------------|
 | `single` | 1 VM (client) | Fedora VM with full toolset: ACL tools, plocate, IOTBN groups, /opt/iotbn directory, networking utilities. Student does all work on one machine. | `PROFILE=single vagrant up` |
-| `dual` | 2 VMs (client + server) | Same as single plus a server VM running dnsmasq (DNS) and httpd (web server) on a private network. For labs that need cross-machine networking. | `PROFILE=dual vagrant up` |
+| `dual` | 2 VMs (client + server) | Same as single plus a server VM running dnsmasq (DNS) and httpd (web server) on a private network. For labs that need cross-machine networking. **Not available on UTM (Apple Silicon).** | `PROFILE=dual vagrant up` |
+
+> **Apple Silicon (M1–M5) limitation:** The `dual` profile requires a private network between two VMs. UTM does not support this feature. Apple Silicon users can only use the `single` profile. If your lab requires the `dual` profile, talk to your instructor about alternatives.
 
 ### Which Profile Should I Use?
 
@@ -153,6 +155,7 @@ Replace `single` with the profile you are working on (add `--provider=utm` or `-
 | **DNS resolution fails from client** | Check that the server is running: `vagrant status`. Then: `vagrant ssh server -c "systemctl status dnsmasq"`. If dnsmasq is down, run `vagrant reload server`. |
 | **`vagrant ssh` says connection refused** | The VM may still be booting. Wait 30 seconds and try again. If it persists, `vagrant reload`. |
 | **Apple Silicon: UTM not found** | Make sure UTM is installed and has been opened at least once. Verify: `vagrant plugin list` shows `vagrant_utm`. |
+| **"dual profile is not supported with the UTM provider"** | The `dual` profile needs a private network between two VMs, which UTM does not support. Apple Silicon users can only use `PROFILE=single`. If your lab requires `dual`, talk to your instructor. |
 
 ## Requirements
 

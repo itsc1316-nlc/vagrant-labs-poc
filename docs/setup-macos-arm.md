@@ -46,7 +46,9 @@ cd vagrant-labs-poc
 PROFILE=single vagrant up --provider=utm
 ```
 
-Replace `single` with the profile your instructor assigned (see the Lab-to-Profile table in the README).
+> **Important:** Only the `single` profile works with UTM on Apple Silicon.
+> The `dual` profile (two VMs on a private network) is not supported by UTM.
+> If your lab requires the `dual` profile, talk to your instructor about alternatives.
 
 This downloads and configures a Fedora Linux VM using UTM. The first run takes 10–20 minutes. Let it finish.
 
@@ -91,4 +93,4 @@ To delete and rebuild from scratch:
 vagrant destroy -f && PROFILE=single vagrant up --provider=utm
 ```
 
-Replace `single` with the profile you are working on.
+Only the `single` profile is supported with UTM.
