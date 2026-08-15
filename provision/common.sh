@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# common.sh — runs on every node before node-specific provisioning
+# common.sh — runs on every node before profile-specific provisioning
 # Idempotent: safe to run multiple times
 set -euxo pipefail
 
@@ -23,7 +23,10 @@ dnf install -y --skip-unavailable \
   traceroute \
   mtr \
   nmap-ncat \
-  elinks
+  elinks \
+  acl \
+  plocate \
+  tree
 
 # ─── Enable and start core services ───────────────────────────
 systemctl enable --now firewalld
@@ -37,37 +40,24 @@ if ! id student &>/dev/null; then
   chmod 0440 /etc/sudoers.d/student
 fi
 
+# ─── IOTBN groups (used by filesystem/permissions labs) ──────
+for group in sysadmins webdevs designers managers creative; do
+  groupadd -f "$group"
+done
+
+# ─── Create nobody test user (used in permissions lab) ────────
+id nobody &>/dev/null || useradd -s /sbin/nologin nobody
+
+# ─── /opt/iotbn parent directory ──────────────────────────────
+mkdir -p /opt/iotbn
+
+# ─── Update locate database ───────────────────────────────────
+updatedb 2>/dev/null || plocate.updatedb 2>/dev/null || true
+
+# ─── Lab files accessible to both users ───────────────────────
 # Vagrant syncs labs/ to /opt/labs (world-readable). Symlink ~/labs
 # for both vagrant and student users so they can cd ~/labs/lab-XX.
 ln -sfn /opt/labs /home/vagrant/labs
 ln -sfn /opt/labs /home/student/labs
 chown -h student:student /home/student/labs
 chmod -R a+rX /opt/labs 2>/dev/null || true
-
-# ─── MOTD (generic — lab-specific scripts overwrite this) ─────
-cat > /etc/motd << 'MOTDEOF'
-
-╔══════════════════════════════════════════════════════════╗
-║   ITSC-1316 Linux Primary Shell — Lab Environment         ║
-╠══════════════════════════════════════════════════════════╣
-║                                                          ║
-║   Two-VM topology:  client (192.168.56.10)               ║
-║                     server (192.168.56.20)               ║
-║                                                          ║
-║   You are logged in as: vagrant                           ║
-║   Switch to student account before starting:             ║
-║     su - student                                         ║
-║     (password: fedora)                                   ║
-║                                                          ║
-║   Lab files:        ~/labs/                              ║
-║   Student account:  student / fedora  (passwordless sudo)║
-║                                                          ║
-║   See your lab README for instructions:                  ║
-║     cd ~/labs/                                          ║
-║     ls                                                  ║
-║     cd lab-XX                                           ║
-║     cat README.md                                       ║
-║                                                          ║
-╚══════════════════════════════════════════════════════════╝
-
-MOTDEOF

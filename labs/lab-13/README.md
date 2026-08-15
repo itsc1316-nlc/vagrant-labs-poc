@@ -12,7 +12,7 @@
 | **Textbook** | Eckert, *Linux+* 6e, Chapter 12 (Completion) |
 | **Points** | 40 |
 | **Time** | 90–120 minutes |
-| **Environment** | Two-VM Vagrant lab (client + server) |
+| **Environment** | Vagrant dual-VM profile (client + server) |
 
 ## Topology
 
@@ -29,17 +29,17 @@
 
 ## Before You Begin
 
-> **Starting this lab:** If you haven't already started the VMs for this lab, run:
+> **Starting this lab:** This lab uses the `dual` profile (two VMs: client + server). If you haven't already started it, run:
 > ```bash
-> LAB=lab-13 vagrant up
+> PROFILE=dual vagrant up
 > ```
 > If you are on a Mac with Apple Silicon (M1–M5), add `--provider=utm`:
 > ```bash
-> LAB=lab-13 vagrant up --provider=utm
+> PROFILE=dual vagrant up --provider=utm
 > ```
 > If you are on Linux using KVM/libvirt, add `--provider=libvirt`:
 > ```bash
-> LAB=lab-13 vagrant up --provider=libvirt
+> PROFILE=dual vagrant up --provider=libvirt
 > ```
 > See your platform setup guide in the `docs/` folder for details.
 
@@ -48,7 +48,7 @@
    ```bash
    vagrant status
    ```
-   If either is down, run the same `LAB=lab-13 vagrant up` command (with your provider flag if needed).
+   If either is down, run the same `PROFILE=dual vagrant up` command (with your provider flag if needed).
 
 2. Log into the **client** VM:
 
@@ -240,4 +240,4 @@ See [rubric.md](rubric.md) for the full grading criteria.
 - **Can't reach the server?** Run `vagrant reload server` and wait for it to come back up.
 - **DNS not resolving?** Check that the server's `dnsmasq` service is running: `vagrant ssh server -c "systemctl status dnsmasq"`
 - **SSH to server fails?** From the client as `student`: `ssh student@192.168.56.20`
-- **Want to start over?** From your host machine: `vagrant destroy -f && LAB=lab-13 vagrant up` (add `--provider=utm` or `--provider=libvirt` if your setup requires it).
+- **Want to start over?** From your host machine: `vagrant destroy -f && PROFILE=dual vagrant up` (add `--provider=utm` or `--provider=libvirt` if your setup requires it).

@@ -37,16 +37,15 @@ cd vagrant-labs-poc
 
 ## Step 5: Start the Lab
 
-Still in Git Bash, in the `linux_lab_poc` folder:
+Still in Git Bash, in the `vagrant-labs-poc` folder:
 
 ```bash
-LAB=lab-13 vagrant up
+PROFILE=single vagrant up
 ```
 
-Replace `lab-13` with the lab your instructor assigned (see the Available Labs table in the README).
+Replace `single` with the profile your instructor assigned (see the Lab-to-Profile table in the README).
 
-This will download two Fedora Linux VMs and set them up. It may take 10–20 minutes the first time. You will see a lot of text scroll by — that is normal.
-
+This will download a Fedora Linux VM and set it up. It may take 10–20 minutes the first time. You will see a lot of text scroll by — that is normal.
 
 ## Step 6: Connect to the Client VM
 
@@ -64,7 +63,7 @@ Password: `fedora`
 
 ## When You Are Done
 
-To shut down the VMs:
+To shut down the VM(s):
 
 ```bash
 vagrant halt
@@ -73,7 +72,7 @@ vagrant halt
 To delete and rebuild from scratch:
 
 ```bash
-vagrant destroy -f && LAB=lab-13 vagrant up
+vagrant destroy -f && PROFILE=single vagrant up
 ```
 
-Replace `lab-13` with the lab you are working on.
+Replace `single` with the profile you are working on.

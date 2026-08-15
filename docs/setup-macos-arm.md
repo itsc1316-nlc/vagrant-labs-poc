@@ -43,12 +43,12 @@ cd vagrant-labs-poc
 ## Step 5: Start the Lab
 
 ```bash
-LAB=lab-13 vagrant up --provider=utm
+PROFILE=single vagrant up --provider=utm
 ```
 
-Replace `lab-13` with the lab your instructor assigned (see the Available Labs table in the README).
+Replace `single` with the profile your instructor assigned (see the Lab-to-Profile table in the README).
 
-This downloads and configures two Fedora Linux VMs using UTM. The first run takes 10–20 minutes. Let it finish.
+This downloads and configures a Fedora Linux VM using UTM. The first run takes 10–20 minutes. Let it finish.
 
 > If you see an error about the provider, make sure UTM is open and running in the background.
 
@@ -68,7 +68,7 @@ Password: `fedora`
 
 ## When You Are Done
 
-To shut down the VMs:
+To shut down the VM(s):
 
 ```bash
 vagrant halt
@@ -77,7 +77,7 @@ vagrant halt
 To delete and rebuild from scratch:
 
 ```bash
-vagrant destroy -f && LAB=lab-13 vagrant up --provider=utm
+vagrant destroy -f && PROFILE=single vagrant up --provider=utm
 ```
 
-Replace `lab-13` with the lab you are working on.
+Replace `single` with the profile you are working on.

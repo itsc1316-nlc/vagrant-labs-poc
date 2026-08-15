@@ -1,32 +1,25 @@
 # ITSC-1316 Linux Lab Environment
 
-A Vagrant-based local lab environment for the **ITSC-1316 Linux Primary Shell** course. This repository gives you two Fedora Linux virtual machines — a **client** and a **server** — connected on a private network. Each lab has its own provisioning scripts that configure the VMs for that lab's specific tasks.
+A Vagrant-based local lab environment for the **ITSC-1316 Linux Primary Shell** course. This repository gives you Fedora Linux virtual machines on your own computer so you can practice hands-on Linux skills without a remote server.
 
 ## Quick Start
 
-| Your Computer | Setup Guide |
-|---------------|-------------|
-| Windows 10 / 11 | [setup-windows.md](docs/setup-windows.md) |
-| Mac (Intel) | [setup-macos-intel.md](docs/setup-macos-intel.md) |
-| Mac (Apple Silicon M1–M5) | [setup-macos-arm.md](docs/setup-macos-arm.md) |
-| Linux | [setup-linux.md](docs/setup-linux.md) |
-
-Once you have Vagrant installed and this repo cloned, start the lab your instructor assigned:
+Once you have Vagrant installed and this repo cloned, start the profile your instructor assigned:
 
 ```bash
-LAB=lab-13 vagrant up
+PROFILE=single vagrant up
 ```
 
-Replace `lab-13` with the lab you need (see the table below).
+Replace `single` with the profile you need (see the table below).
 
 > **Mac with Apple Silicon (M1–M5)?** Add `--provider=utm`:
 > ```bash
-> LAB=lab-13 vagrant up --provider=utm
+> PROFILE=single vagrant up --provider=utm
 > ```
 
 > **Linux with KVM/libvirt?** Add `--provider=libvirt`:
 > ```bash
-> LAB=lab-13 vagrant up --provider=libvirt
+> PROFILE=single vagrant up --provider=libvirt
 > ```
 
 Then connect to the client VM:
@@ -35,77 +28,107 @@ Then connect to the client VM:
 vagrant ssh client
 ```
 
-## What Is This?
+## Lab-to-Profile Cross-Reference
 
-Instead of connecting to a remote cloud server, you run two Linux VMs on your own computer. The **client** VM is where you do your work. The **server** VM runs services (web, DNS, file shares — depending on the lab) that the client interacts with. When you run `LAB=lab-XX vagrant up`, Vagrant installs and configures only what that lab needs.
+Each lab uses one of two VM profiles. Check which profile your lab needs before starting.
+
+| Lab | Module | Topic | Profile | Lab Link |
+|-----|--------|-------|---------|----------|
+| Lab 04 | Module 4 | Building and Securing Directory Structure | `single` | [labs/lab-04/README.md](labs/lab-04/README.md) |
+| Lab 13 | Module 13 | Advanced Network Configuration | `dual` | [labs/lab-13/README.md](labs/lab-13/README.md) |
+
+### Profile Descriptions
+
+| Profile | VMs | What It Provides | Start Command |
+|---------|-----|------------------|---------------|
+| `single` | 1 VM (client) | Fedora VM with ACL tools, plocate, IOTBN groups, /opt/iotbn directory. Student does all work on one machine. | `PROFILE=single vagrant up` |
+| `dual` | 2 VMs (client + server) | Same as single plus a server VM running dnsmasq (DNS) and httpd (web server) on a private network. For labs that need cross-machine networking. | `PROFILE=dual vagrant up` |
 
 ## Topology
 
+### Single Profile
+
 ```
-        ┌──────────────────────────────────────────────┐
-        │          Your Computer (Host)                 │
-        │                                              │
-        │  ┌─────────────┐    ┌─────────────┐          │
-        │  │   client    │    │   server    │          │
-        │  │ Fedora VM   │    │ Fedora VM   │          │
-        │  │             │    │             │          │
-        │  │ 192.168.56. │◄──►│ 192.168.56. │          │
-        │  │    10       │    │    20       │          │
-        │  │             │    │             │          │
-        │  │  student    │    │  services   │          │
-        │  │  workspace  │    │  (per lab)  │          │
-        │  └─────────────┘    └─────────────┘          │
-        │     private network: 192.168.56.0/24        │
-        │                                              │
-        └──────────────────────────────────────────────┘
+┌────────────────────────────────────┐
+│       Your Computer (Host)         │
+│                                   │
+│  ┌─────────────┐                  │
+│  │   client    │                  │
+│  │ Fedora VM   │                  │
+│  │             │                  │
+│  │ 192.168.56. │                  │
+│  │    10       │                  │
+│  │             │                  │
+│  │  student    │                  │
+│  │  workspace  │                  │
+│  └─────────────┘                  │
+│                                   │
+└────────────────────────────────────┘
 ```
 
-## Available Labs
+### Dual Profile
 
-| Lab | Module | Topic | Start Command | Link |
-|-----|--------|-------|---------------|------|
-| Lab 13 | Module 13 | Advanced Network Configuration | `LAB=lab-13 vagrant up` | [labs/lab-13/README.md](labs/lab-13/README.md) |
-| Lab 04 | Module 4 | Building and Securing Directory Structure | `LAB=lab-04 vagrant up` | [labs/lab-04/README.md](labs/lab-04/README.md) |
+```
+┌──────────────────────────────────────────────┐
+│          Your Computer (Host)                 │
+│                                              │
+│  ┌─────────────┐    ┌─────────────┐          │
+│  │   client    │    │   server    │          │
+│  │ Fedora VM   │    │ Fedora VM   │          │
+│  │             │    │             │          │
+│  │ 192.168.56. │◄──►│ 192.168.56. │          │
+│  │    10       │    │    20       │          │
+│  │             │    │             │          │
+│  │  student    │    │  dnsmasq    │          │
+│  │  workspace  │    │  httpd      │          │
+│  └─────────────┘    └─────────────┘          │
+│     private network: 192.168.56.0/24        │
+│                                              │
+└──────────────────────────────────────────────┘
+```
 
-### Switching Labs
+## Switching Profiles
 
-Each lab configures the VMs differently. To switch to a different lab:
+Each profile configures the VMs differently. To switch profiles:
 
 ```bash
 vagrant destroy -f
-LAB=lab-04 vagrant up
+PROFILE=dual vagrant up
 ```
 
-You must destroy and rebuild when switching labs so the new provisioning scripts run cleanly. Add `--provider=utm` or `--provider=libvirt` if your setup requires it.
+Add `--provider=utm` or `--provider=libvirt` if your setup requires it.
+
+You must destroy and rebuild when switching profiles so the new provisioning scripts run cleanly.
 
 ## Rebuild From Scratch
 
 If something breaks or you want a clean start:
 
 ```bash
-vagrant destroy -f && LAB=lab-13 vagrant up
+vagrant destroy -f && PROFILE=single vagrant up
 ```
 
-Replace `lab-13` with the lab you are working on (add `--provider=utm` or `--provider=libvirt` if your setup requires it). This deletes both VMs and rebuilds them from scratch. Your lab files on your host computer are not affected.
-
+Replace `single` with the profile you are working on (add `--provider=utm` or `--provider=libvirt` if your setup requires it). This deletes the VM(s) and rebuilds them from scratch. Your lab files on your host computer are not affected.
 
 ## Troubleshooting
 
 | Problem | Solution |
 |---------|----------|
+| **"You must specify a profile"** | Always include `PROFILE=single` or `PROFILE=dual` when running `vagrant up`. After the first time, other commands like `vagrant ssh` will remember your choice. |
 | **"VT-x not enabled" or "virtualization not enabled"** | Reboot your computer, enter BIOS/UEFI settings, and enable Intel VT-x or AMD-V. This is a one-time setup. Search your computer model + "enable virtualization" for specific steps. |
 | **"Provider not found" or "No usable provider"** | Make sure VirtualBox (or UTM on Apple Silicon) is installed and running. Re-open the app once before trying `vagrant up` again. |
 | **"Network conflict" or "192.168.56.x already in use"** | Another VirtualBox network is using the same subnet. Run `VBoxManage hostonlyif remove` to clean up old adapters, or shut down other VMs. |
-| **VMs start but can't ping each other** | Run `vagrant reload` to restart both VMs. If that fails, `vagrant destroy -f && LAB=lab-13 vagrant up` (replace with your lab). |
+| **VMs start but can't ping each other** | Run `vagrant reload` to restart the VMs. If that fails, `vagrant destroy -f && PROFILE=dual vagrant up` (replace with your profile). |
 | **DNS resolution fails from client** | Check that the server is running: `vagrant status`. Then: `vagrant ssh server -c "systemctl status dnsmasq"`. If dnsmasq is down, run `vagrant reload server`. |
 | **`vagrant ssh` says connection refused** | The VM may still be booting. Wait 30 seconds and try again. If it persists, `vagrant reload`. |
 | **Apple Silicon: UTM not found** | Make sure UTM is installed and has been opened at least once. Verify: `vagrant plugin list` shows `vagrant_utm`. |
+| **Lab files not accessible as student user** | Run `vagrant provision` to re-run the setup scripts, or `vagrant destroy -f && PROFILE=single vagrant up`. |
 
 ## Requirements
 
 - **Vagrant** 2.4 or later
 - **A hypervisor:** VirtualBox (Windows, macOS Intel, Linux), UTM (macOS Apple Silicon), or libvirt (Linux)
-- **~5 GB free disk space** for two VMs
+- **~3 GB free disk space** for one VM (single) or ~5 GB for two VMs (dual)
 - **Internet access** for the initial box download
 
 ## Accounts

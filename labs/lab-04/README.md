@@ -12,31 +12,31 @@
 | **Textbook** | Eckert, *Linux+* 6e, Chapter 4 |
 | **Points** | 40 |
 | **Time** | 90–120 minutes |
-| **Environment** | Two-VM Vagrant lab (work on the client VM) |
+| **Environment** | Vagrant single-VM profile (client) |
 
 ## Before You Begin
 
-> **Starting this lab:** If you haven't already started the VMs for this lab, run:
+> **Starting this lab:** This lab uses the `single` profile (one VM). If you haven't already started it, run:
 > ```bash
-> LAB=lab-04 vagrant up
+> PROFILE=single vagrant up
 > ```
 > If you are on a Mac with Apple Silicon (M1–M5), add `--provider=utm`:
 > ```bash
-> LAB=lab-04 vagrant up --provider=utm
+> PROFILE=single vagrant up --provider=utm
 > ```
 > If you are on Linux using KVM/libvirt, add `--provider=libvirt`:
 > ```bash
-> LAB=lab-04 vagrant up --provider=libvirt
+> PROFILE=single vagrant up --provider=libvirt
 > ```
 > See your platform setup guide in the `docs/` folder for details.
 
-1. Make sure both VMs are running:
+1. Make sure the VM is running:
 
    ```bash
    vagrant status
    ```
 
-   If either is down, run the same `LAB=lab-04 vagrant up` command (with your provider flag if needed).
+   If it is down, run the same `PROFILE=single vagrant up` command (with your provider flag if needed).
 
 2. Log into the **client** VM:
 
@@ -424,7 +424,7 @@ sudo find /opt/iotbn -maxdepth 1 -type d -printf '%M %u:%g %p\n'
 cd ~ && rmdir umask-test-a umask-test-b && rm -f umask-file-a umask-file-b
 ```
 
-> **Note:** In the Vagrant environment, you don't need to take a VMware snapshot. If you want to preserve this state, ask your instructor. To start fresh later, run `vagrant destroy -f && LAB=lab-04 vagrant up` from your host machine (add `--provider=utm` or `--provider=libvirt` if your setup requires it).
+> **Note:** In the Vagrant environment, you don't need to take a VMware snapshot. If you want to preserve this state, ask your instructor. To start fresh later, run `vagrant destroy -f && PROFILE=single vagrant up` from your host machine (add `--provider=utm` or `--provider=libvirt` if your setup requires it).
 
 **Q 11.1** Paste the full output of the `find` command above. Every directory should show the correct owner, group, and mode.
 
@@ -484,4 +484,4 @@ Write a short shell command (one line is fine) that audits `/opt/iotbn` and repo
 - **Permission denied errors?** Make sure you are using `sudo` where the lab says to.
 - **`locate` command not found?** The lab provisions `plocate` — if it is missing, run `sudo dnf install -y plocate && sudo updatedb`.
 - **`setfacl` or `getfacl` not found?** Run `sudo dnf install -y acl`.
-- **Want to start over?** From your host machine: `vagrant destroy -f && LAB=lab-04 vagrant up` (add `--provider=utm` or `--provider=libvirt` if your setup requires it).
+- **Want to start over?** From your host machine: `vagrant destroy -f && PROFILE=single vagrant up` (add `--provider=utm` or `--provider=libvirt` if your setup requires it).

@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# client.sh — node-specific provisioning for the client VM
-# Configures: DNS to use the server, SSH access to server, hosts file
+# dual-client.sh — provisioning for the client VM in the dual-VM profile
+# Runs on the client VM after common.sh
+# Used by: networking, DNS, routing labs
 # Idempotent: safe to run multiple times
 set -euxo pipefail
 
 # ─── Point client DNS at the server's dnsmasq ────────────────
-# This mirrors the Canvas lab's DNS resolution scenario
 cat > /etc/resolv.conf << 'DNS_EOF'
 nameserver 192.168.56.20
 search corp.local
@@ -28,9 +28,7 @@ if [ ! -f "$STUDENT_HOME/.ssh/id_ed25519" ]; then
   sudo -u student ssh-keygen -t ed25519 -N "" -f "$STUDENT_HOME/.ssh/id_ed25519"
 fi
 
-# Add server's host key to known_hosts so SSH does not prompt
-# These may fail if the server isn't up yet — that's fine, SSH will
-# fall back to StrictHostKeyChecking=no in the SSH config below.
+# Add server's host key to known_hosts (may fail if server isn't up yet)
 sudo -u student bash -c "ssh-keyscan -H 192.168.56.20 server.corp.local 2>/dev/null >> ~/.ssh/known_hosts" || true
 sudo -u student bash -c "ssh-keyscan -H 192.168.56.10 client.corp.local 2>/dev/null >> ~/.ssh/known_hosts" || true
 
@@ -58,20 +56,16 @@ SSHCFG_EOF
 chown student:student "$STUDENT_HOME/.ssh/config"
 chmod 600 "$STUDENT_HOME/.ssh/config"
 
-# ─── Firewall: allow SSH outbound (default) ──────────────────
+# ─── Firewall ─────────────────────────────────────────────────
 firewall-cmd --permanent --add-service=ssh
 firewall-cmd --reload
-echo "Client provisioning complete."
-echo "  DNS server:  192.168.56.20 (server)"
-echo "  Search domain: corp.local"
-echo "  SSH to server: ssh student@server  (or: ssh student@server.corp.local)"
 
-# ─── Lab-specific MOTD ──────────────────────────────────────
+# ─── MOTD ─────────────────────────────────────────────────────
 cat > /etc/motd << 'MOTDEOF'
 
 ╔══════════════════════════════════════════════════════════╗
-║   ITSC-1316 Linux Primary Shell — Lab 13                   ║
-║   Advanced Network Configuration                           ║
+║   ITSC-1316 Linux Primary Shell — Lab Environment         ║
+║   Dual-VM Profile (client + server)                        ║
 ╠══════════════════════════════════════════════════════════╣
 ║                                                          ║
 ║   Two-VM topology:  client (192.168.56.10)               ║
@@ -83,13 +77,20 @@ cat > /etc/motd << 'MOTDEOF'
 ║     su - student                                         ║
 ║     (password: fedora)                                   ║
 ║                                                          ║
-║   Lab files:        ~/labs/lab-13/                       ║
+║   Lab files:        ~/labs/                              ║
 ║   Student account:  student / fedora  (passwordless sudo)║
 ║                                                          ║
 ║   Quick start:                                          ║
-║     cd ~/labs/lab-13                                    ║
+║     cd ~/labs/                                          ║
+║     ls                                                  ║
+║     cd lab-XX                                           ║
 ║     cat README.md                                       ║
 ║                                                          ║
 ╚══════════════════════════════════════════════════════════╝
 
 MOTDEOF
+
+echo "Dual-VM client provisioning complete."
+echo "  DNS server:    192.168.56.20 (server)"
+echo "  Search domain: corp.local"
+echo "  SSH to server: ssh student@server"

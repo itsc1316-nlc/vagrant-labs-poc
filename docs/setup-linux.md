@@ -50,10 +50,10 @@ sudo pacman -S vagrant
 ```bash
 git clone https://github.com/itsc1316-nlc/vagrant-labs-poc.git
 cd vagrant-labs-poc
-LAB=lab-13 vagrant up
+PROFILE=single vagrant up
 ```
 
-Replace `lab-13` with the lab your instructor assigned (see the Available Labs table in the README).
+Replace `single` with the profile your instructor assigned (see the Lab-to-Profile table in the README).
 
 ---
 
@@ -84,16 +84,16 @@ Log out and log back in for the group change to take effect.
 ```bash
 git clone https://github.com/itsc1316-nlc/vagrant-labs-poc.git
 cd vagrant-labs-poc
-LAB=lab-13 vagrant up --provider=libvirt
+PROFILE=single vagrant up --provider=libvirt
 ```
 
-Replace `lab-13` with the lab your instructor assigned (see the Available Labs table in the README).
+Replace `single` with the profile your instructor assigned (see the Lab-to-Profile table in the README).
 
 ---
 
 ## Connect to the Client VM
 
-After `LAB=lab-13 vagrant up` finishes:
+After `vagrant up` finishes:
 
 ```bash
 vagrant ssh client
@@ -109,7 +109,7 @@ Password: `fedora`
 
 ## When You Are Done
 
-To shut down the VMs:
+To shut down the VM(s):
 
 ```bash
 vagrant halt
@@ -118,5 +118,7 @@ vagrant halt
 To delete and rebuild from scratch:
 
 ```bash
-vagrant destroy -f && LAB=lab-13 vagrant up
+vagrant destroy -f && PROFILE=single vagrant up
 ```
+
+Replace `single` with the profile you are working on.
