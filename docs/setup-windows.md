@@ -3,6 +3,9 @@
 Use this guide if your computer runs Windows 10 or Windows 11. No experience
 with Git, Linux, terminals, or virtual machines is required.
 
+These instructions support standard 64-bit Windows computers with an Intel or
+AMD processor. They have not been verified on Windows on ARM.
+
 ## Before You Start
 
 You need:
@@ -15,6 +18,10 @@ You need:
 This guide uses **Git Bash** for commands. Git Bash is a terminal application
 installed with Git. Do not enter these commands in the Linux VM unless the
 guide specifically says to do so.
+
+> **Use Git Bash, not PowerShell or Command Prompt.** Commands such as
+> `PROFILE=single vagrant up` use Bash syntax and will not work unchanged in
+> those other shells.
 
 ## Step 1: Install VirtualBox
 
@@ -33,7 +40,9 @@ VirtualBox is the application that runs the Fedora Linux virtual machine.
 Vagrant creates and controls the virtual machines for this course.
 
 1. Open <https://developer.hashicorp.com/vagrant/install>.
-2. Find **Windows** and download the **AMD64** installer.
+2. Find **Windows** and download the **AMD64** installer. Despite the name,
+   AMD64 is the correct choice for standard 64-bit computers with either an
+   Intel or AMD processor.
 3. Open the downloaded installer and follow its prompts.
 4. Restart Windows when the installer finishes. This makes the `vagrant`
    command available to newly opened terminals.
