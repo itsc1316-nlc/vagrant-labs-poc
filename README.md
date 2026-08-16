@@ -1,7 +1,7 @@
 # ITSC-1316 Linux Lab Environment
 
 This project creates one or two Fedora Linux **virtual machines (VMs)** for
-hands-on practice in the **ITSC-1316 Linux Primary Shell** course. A VM is a
+hands-on practice in the **ITSC-1316** course. A VM is a
 practice computer that runs safely inside your normal computer; it does not
 replace Windows, macOS, or Linux on the host.
 
