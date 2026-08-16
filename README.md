@@ -156,6 +156,7 @@ Replace `single` with the profile you are working on (add `--provider=utm` or `-
 | **VMs start but cannot ping each other** | Run `vagrant provision`. If provisioning still fails, rebuild with `vagrant destroy -f && PROFILE=dual vagrant up` and add your provider flag. |
 | **DNS resolution fails from client** | Check `vagrant status`, then run `vagrant ssh server -c "sudo systemctl status dnsmasq"`. Reapply the server configuration with `vagrant provision server`. |
 | **`vagrant ssh` says connection refused** | The VM may still be booting. Wait 30 seconds and try again. If it persists, run `vagrant reload`. |
+| **UTM reports OSStatus `-1712` or "Connection is invalid" (`-609`)** | Quit and reopen UTM, then rerun the same `vagrant up` command. If the VM is running but setup stopped before completion, run `vagrant provision`. |
 | **UTM reports that port 4444 is already in use** | Rebuild with another host port, for example: `vagrant destroy -f && UTM_NET_PORT=45444 PROFILE=dual vagrant up --provider=utm`. |
 | **UTM dual profile cannot start the client** | Start the listener first: `PROFILE=dual vagrant up server --provider=utm`, then `vagrant up client --provider=utm`. A normal `PROFILE=dual vagrant up --provider=utm` already uses this order. |
 
