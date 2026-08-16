@@ -34,22 +34,26 @@ profile. Keep that assignment open while following the setup guide.
 
 When a guide shows a command in a shaded box:
 
-1. Click inside the terminal application named by the guide.
-2. Type or paste **one line at a time**. Do not type the word `bash`, the
-   backticks, or any `$` prompt shown by your terminal.
-3. Press **Enter** and wait for the prompt to return before entering the next
+1. Click inside the terminal application named by that platform guide.
+2. Type or paste **one line at a time**.
+3. Do not type the language label (`bash`, `powershell`, or `text`), the three
+   backticks, or prompt text such as `PS C:\Users\Student>` or
+   `[student@client ~]$`.
+4. Do type characters such as `$`, quotation marks, and backslashes when they
+   appear as part of the command itself.
+5. Press **Enter** and wait for the prompt to return before entering the next
    line.
-4. If a command displays an error, stop and use the troubleshooting section
+6. If a command displays an error, stop and use the troubleshooting section
    instead of continuing.
 
 ## Profiles
 
 Each lab in the course uses one of two VM profiles. Check which profile your lab needs before starting.
 
-| Profile | VMs | What It Provides | Start Command |
-|---------|-----|------------------|---------------|
-| `single` | 1 VM (client) | Fedora VM with full toolset: ACL tools, plocate, IOTBN groups, /opt/iotbn directory, networking utilities. Student does all work on one machine. | `PROFILE=single vagrant up` |
-| `dual` | 2 VMs (client + server) | Same as single plus a server VM running dnsmasq (DNS) and httpd (web server) on a private network. For labs that need cross-machine networking. | `PROFILE=dual vagrant up` |
+| Profile | VMs | What It Provides |
+|---------|-----|------------------|
+| `single` | 1 VM (client) | Fedora VM with full toolset: ACL tools, plocate, IOTBN groups, /opt/iotbn directory, networking utilities. Student does all work on one machine. |
+| `dual` | 2 VMs (client + server) | Same as single plus a server VM running dnsmasq (DNS) and httpd (web server) on a private network. For labs that need cross-machine networking. |
 
 ### Which Profile Should I Use?
 
@@ -135,39 +139,25 @@ exit
 
 You are now back on your own computer. Vagrant commands like `vagrant halt` and `vagrant destroy` only work from your host computer — **not from inside the VM**.
 
-## Switching Profiles
+## Switching Profiles or Rebuilding
 
-Each profile configures the VMs differently. To switch profiles:
+Each profile configures a different set of VMs. Switching profiles requires
+deleting the existing course VMs and building the assigned profile again.
 
-```bash
-vagrant destroy -f
-PROFILE=dual vagrant up
-```
-
-Add `--provider=utm` or `--provider=libvirt` if your setup requires it.
-
-You must destroy and rebuild when switching profiles so the new provisioning scripts run cleanly.
-
-## Rebuild From Scratch
-
-If something breaks or you want a clean start:
-
-```bash
-vagrant destroy -f && PROFILE=single vagrant up
-```
-
-Replace `single` with the profile you are working on (add `--provider=utm` or `--provider=libvirt` if your setup requires it). This deletes the VM(s) and rebuilds them from scratch.
-
+Use the **Start Over With Clean VMs** section in your platform setup guide. It
+provides the correct commands for Windows PowerShell, macOS Terminal, or Linux
+Terminal. This process deletes the course VMs but does not delete files in your
+host computer's user folder.
 
 ## Troubleshooting
 
 | Problem | Solution |
 |---------|----------|
-| **"You must specify a profile"** | Include `PROFILE=single` or `PROFILE=dual` with the first `vagrant up`. Later commands remember the validated profile. |
+| **"You must specify a profile"** | Return to Step 6 in your platform setup guide. Windows uses `$env:PROFILE = "single"` or `"dual"` followed by `vagrant up`; macOS and Linux use the `PROFILE=... vagrant up` form shown in their guides. |
 | **"VT-x not enabled" or "virtualization not enabled"** | Reboot your computer, enter BIOS/UEFI settings, and enable Intel VT-x or AMD-V. Search your computer model plus "enable virtualization" for the exact steps. |
 | **"Provider not found" or "No usable provider"** | Make sure VirtualBox, libvirt, or UTM is installed for your platform. On Apple Silicon, open UTM once and verify that `vagrant plugin list` includes `vagrant_utm`. |
 | **"Network conflict" or "192.168.56.x already in use"** | Shut down unrelated VMs using that subnet. In VirtualBox, use **Tools > Network** to inspect host-only networks before removing anything. |
-| **VMs start but cannot ping each other** | Run `vagrant provision`. If provisioning still fails, rebuild with `vagrant destroy -f && PROFILE=dual vagrant up` and add your provider flag. |
+| **VMs start but cannot ping each other** | Run `vagrant provision`. If provisioning still fails, use **Start Over With Clean VMs** in your platform setup guide and rebuild the `dual` profile. |
 | **DNS resolution fails from client** | Check `vagrant status`, then run `vagrant ssh server -c "sudo systemctl status dnsmasq"`. Reapply the server configuration with `vagrant provision server`. |
 | **`vagrant ssh` says connection refused** | The VM may still be booting. Wait 30 seconds and try again. If it persists, run `vagrant reload`. |
 | **UTM reports OSStatus `-1712` or "Connection is invalid" (`-609`)** | Quit and reopen UTM, then rerun the same `vagrant up` command. If the VM is running but setup stopped before completion, run `vagrant provision`. |

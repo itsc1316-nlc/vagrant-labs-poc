@@ -15,13 +15,9 @@ You need:
 - about 5 GB of free storage for one VM or 10 GB for two VMs
 - the Canvas assignment that tells you to use the `single` or `dual` profile
 
-This guide uses **Git Bash** for commands. Git Bash is a terminal application
-installed with Git. Do not enter these commands in the Linux VM unless the
-guide specifically says to do so.
-
-> **Use Git Bash, not PowerShell or Command Prompt.** Commands such as
-> `PROFILE=single vagrant up` use Bash syntax and will not work unchanged in
-> those other shells.
+This guide uses **PowerShell**, which is included with Windows, for commands on
+your computer. Commands entered after `vagrant ssh client` run inside the
+Fedora VM instead. The guide identifies that change when it happens.
 
 ## Step 1: Install VirtualBox
 
@@ -47,26 +43,49 @@ Vagrant creates and controls the virtual machines for this course.
 4. Restart Windows when the installer finishes. This makes the `vagrant`
    command available to newly opened terminals.
 
-## Step 3: Install Git and Git Bash
+## Step 3: Install Git
 
-Git downloads this lab project from GitHub. The Git installer also provides the
-Git Bash terminal used in the remaining steps.
+Git downloads this lab project from GitHub. Its installer makes the `git`
+command available in PowerShell.
 
 1. Open <https://git-scm.com/install/windows>.
 2. The Git for Windows download should begin automatically. Open it when the
    download finishes.
 3. Keep the installer defaults unless your instructor gave different settings.
-4. Finish the installation.
-5. Open the **Start menu**, type **Git Bash**, and open **Git Bash**.
+4. If the installer shows an **Adjusting your PATH environment** page, keep
+   the option that allows Git to run from the command line and third-party
+   software.
+5. Finish the installation.
+6. Open the **Start menu**, type **PowerShell**, and select **Windows
+   PowerShell**. Open it normally; do not select **Run as administrator**.
 
-A window with a line ending in `$` should appear. That line is the **prompt**.
-It means Git Bash is ready for a command.
+A window with a prompt beginning with `PS` should appear. The prompt means
+PowerShell is ready for a command.
+
+### How to Enter a PowerShell Command
+
+You do not need to memorize these commands.
+
+1. Click in the PowerShell window after the `>` character in the prompt.
+2. Copy one command line from this guide.
+3. Paste it with **Ctrl+V**.
+4. Make sure you did not copy the word `powershell`, the three backticks, or
+   prompt text such as `PS C:\Users\Student>`.
+5. Press **Enter once**.
+6. Wait for the `PS ...>` prompt to return before entering the next command.
+
+Some successful PowerShell commands display no message and immediately show
+the prompt again. Error messages normally appear in red. If you receive an
+error, stop and read it rather than continuing.
+
+Characters such as `$`, `:`, quotation marks, and backslashes shown inside a
+command are part of that command. Copy them exactly.
 
 ## Step 4: Check the Installations
 
-In Git Bash, enter these commands one line at a time:
+In PowerShell, enter these commands one line at a time:
 
-```bash
+```powershell
 git --version
 vagrant --version
 ```
@@ -76,65 +95,89 @@ Expected result:
 - the first command prints a Git version
 - the second command prints a Vagrant version
 
-The exact version numbers may differ. If Git Bash says `command not found`,
-close Git Bash, restart Windows, and try again before continuing.
+The exact version numbers may differ. If PowerShell says that a command is not
+recognized, close PowerShell, restart Windows, and retry before continuing.
 
 ## Step 5: Download the Lab Project
 
-The first command below moves to your Windows user folder. The second command
-downloads the project. The third command moves into the downloaded folder.
+The first command moves to your Windows user folder. `$HOME` automatically
+means a location such as `C:\Users\YourName`. The second command downloads the
+project. The third command moves into the new project folder.
 
-Enter each line separately in Git Bash:
+Enter each line separately in PowerShell:
 
-```bash
-cd ~
+```powershell
+Set-Location $HOME
 git clone https://github.com/itsc1316-nlc/vagrant-labs-poc.git
-cd vagrant-labs-poc
+Set-Location "$HOME\vagrant-labs-poc"
 ```
+
+Here is what each line does:
+
+- `Set-Location $HOME` moves PowerShell to your Windows user folder.
+- `git clone ...` creates a folder named `vagrant-labs-poc` and downloads the
+  project into it.
+- `Set-Location "$HOME\vagrant-labs-poc"` moves PowerShell into that project
+  folder. The quotation marks keep the path together if your user-folder path
+  contains spaces.
 
 Expected result:
 
 - `git clone` prints lines beginning with `Cloning into`
-- after `cd vagrant-labs-poc`, the prompt includes `vagrant-labs-poc`
+- after `Set-Location`, the prompt includes `vagrant-labs-poc`
 
 You only run `git clone` once. If Git says the folder already exists, do not
 clone it again. Enter this instead:
 
-```bash
-cd ~/vagrant-labs-poc
+```powershell
+Set-Location "$HOME\vagrant-labs-poc"
 ```
 
 ## Step 6: Start the Assigned Profile
 
-Look at your Canvas assignment. Run **one** of the following commands in Git
-Bash while you are in the `vagrant-labs-poc` folder.
+Look at your Canvas assignment. In PowerShell, run the two lines for your
+assigned profile while you are in the `vagrant-labs-poc` folder.
 
 For the `single` profile:
 
-```bash
-PROFILE=single vagrant up
+```powershell
+$env:PROFILE = "single"
+vagrant up
 ```
 
 For the `dual` profile:
 
-```bash
-PROFILE=dual vagrant up
+```powershell
+$env:PROFILE = "dual"
+vagrant up
 ```
 
+The `$env:PROFILE` line creates a temporary PowerShell environment setting that
+the `vagrant` program can read. It normally produces no output; seeing the
+`PS ...>` prompt again means you can enter `vagrant up`.
+
+Enter both lines in the same PowerShell window. Type the `$`, colon, quotation
+marks, and profile name exactly as shown. Do not run both the `single` and
+`dual` examples.
+
 The first start downloads Fedora and installs the lab tools. It may take 10–20
-minutes and display many lines of text. Leave Git Bash open. Continue only when
-the command finishes and the `$` prompt returns.
+minutes and display many lines of text. Leave PowerShell open. Continue only
+when the command finishes and the `PS` prompt returns.
 
 ## Step 7: Connect to the Client VM
 
-In Git Bash, enter:
+In PowerShell, enter:
 
-```bash
+```powershell
 vagrant ssh client
 ```
 
 The prompt changes to something similar to `[vagrant@client ~]$`. You are now
-inside the Fedora Linux client VM.
+inside the Fedora Linux client VM. This is a Linux prompt ending in `$`, not a
+PowerShell prompt beginning with `PS`.
+
+Until you enter the second `exit` in Step 8, the commands below run inside
+Fedora.
 
 Switch to the student account:
 
@@ -163,11 +206,11 @@ exit
 ```
 
 - the first `exit` leaves the student account
-- the second `exit` leaves the VM and returns to Git Bash on Windows
+- the second `exit` leaves the VM and returns to PowerShell on Windows
 
-Only after you are back in Git Bash, shut down the VM or VMs:
+Only after you are back in PowerShell, shut down the VM or VMs:
 
-```bash
+```powershell
 vagrant halt
 ```
 
@@ -176,40 +219,42 @@ the VM from Windows.
 
 ## The Next Time You Work
 
-1. Open **Git Bash**.
+1. Open **Windows PowerShell**.
 2. Move into the project folder:
 
-   ```bash
-   cd ~/vagrant-labs-poc
+   ```powershell
+   Set-Location "$HOME\vagrant-labs-poc"
    ```
 
 3. Download instructor updates:
 
-   ```bash
+   ```powershell
    git pull
    ```
 
 4. Start the saved profile:
 
-   ```bash
+   ```powershell
    vagrant up
    ```
 
 5. Connect:
 
-   ```bash
+   ```powershell
    vagrant ssh client
    ```
 
-Vagrant remembers the profile after the first successful setup.
+Vagrant remembers the selected profile in this project after the first
+successful setup. That is why later sessions do not need another
+`$env:PROFILE` command.
 
 ## Start Over With Clean VMs
 
-This deletes the course VMs, not your Windows files. Run these commands from
-Git Bash in the project folder:
+This deletes the course VMs, not your Windows files. Run this command from
+PowerShell in the project folder:
 
-```bash
-vagrant destroy -f
+```powershell
+vagrant destroy --force
 ```
 
 Then repeat Step 6 with the profile named by your Canvas assignment.
