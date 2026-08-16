@@ -1,135 +1,259 @@
 # Setup Guide — Linux
 
-Follow these steps to run the ITSC-1316 Linux lab on a Linux computer (Fedora, Ubuntu, Debian, or similar).
+Use this guide on Fedora, Ubuntu, Debian, or a closely related Linux system. No
+experience with Git, Vagrant, or virtual machines is required.
 
-## Option A: VirtualBox (common on x86-64 Linux)
+This guide uses **libvirt/KVM**, the virtualization system built into Linux.
 
-### Step 1: Install VirtualBox
+## Before You Start
 
-**Fedora:**
+You need:
+
+- an account allowed to run `sudo` commands
+- an internet connection
+- about 5 GB of free storage for one VM or 10 GB for two VMs
+- the Canvas assignment that tells you to use the `single` or `dual` profile
+
+A `sudo` command may ask for your Linux login password. Nothing appears while
+you type the password. That is normal; type it and press **Enter**.
+
+## Step 1: Open Terminal and Identify Your Distribution
+
+Open your system's **Terminal** application. On many Linux desktops,
+**Ctrl+Alt+T** opens it.
+
+A line ending in `$` is the **prompt**. It means Terminal is ready for a
+command. Enter:
 
 ```bash
-sudo dnf install VirtualBox
+cat /etc/os-release
 ```
 
-**Ubuntu / Debian:**
+Look at the `NAME` line in the output:
+
+- use the **Fedora** instructions below if it says Fedora
+- use the **Ubuntu or Debian** instructions if it says Ubuntu, Debian, Linux
+  Mint, or another Debian-based distribution
+
+## Step 2: Install Git, Vagrant, and libvirt
+
+Git downloads the lab project. Vagrant creates and controls its virtual
+machines. libvirt/KVM runs those machines.
+
+### Fedora
+
+Enter this command in Terminal:
+
+```bash
+sudo dnf install git vagrant vagrant-libvirt @virtualization
+```
+
+When `dnf` asks whether to continue, type `y` and press **Enter**.
+
+### Ubuntu or Debian
+
+Enter these commands one line at a time:
 
 ```bash
 sudo apt update
-sudo apt install virtualbox
+sudo apt install git qemu-kvm libvirt-daemon-system libvirt-clients vagrant vagrant-libvirt
 ```
 
-**Arch:**
+When `apt` asks whether to continue, type `Y` and press **Enter**.
+
+## Step 3: Start libvirt and Give Your Account Access
+
+Enter these commands one line at a time:
 
 ```bash
-sudo pacman -S virtualbox
+sudo systemctl enable --now libvirtd
+sudo usermod -aG libvirt "$USER"
 ```
 
-### Step 2: Install Vagrant
+`$USER` automatically means your current Linux account. Do not replace it with
+a password.
 
-**Fedora:**
+The group change takes effect at your next login:
+
+1. Save any open work.
+2. Sign out of the Linux desktop.
+3. Sign back in.
+4. Open Terminal again.
+
+## Step 4: Check the Installations
+
+Enter these commands one line at a time:
 
 ```bash
-sudo dnf install vagrant
+git --version
+vagrant --version
+virsh --version
+vagrant plugin list
 ```
 
-**Ubuntu / Debian:**
+Expected result:
+
+- the first three commands print version numbers
+- `vagrant plugin list` includes `vagrant-libvirt`
+
+The exact version numbers may differ. If a command says `command not found`,
+return to Step 2 and make sure its installation finished without errors.
+
+## Step 5: Download the Lab Project
+
+The first command below moves to your Linux user folder. The second command
+downloads the project. The third command moves into the downloaded folder.
+
+Enter each line separately in Terminal:
 
 ```bash
-sudo apt install vagrant
-```
-
-**Arch:**
-
-```bash
-sudo pacman -S vagrant
-```
-
-### Step 3: Clone and Start
-
-```bash
+cd ~
 git clone https://github.com/itsc1316-nlc/vagrant-labs-poc.git
 cd vagrant-labs-poc
-PROFILE=single vagrant up
 ```
 
-Replace `single` with the profile your instructor assigned (see the profile table in the README).
+Expected result:
 
----
+- `git clone` prints lines beginning with `Cloning into`
+- after `cd vagrant-labs-poc`, the prompt includes `vagrant-labs-poc`
 
-## Option B: libvirt / KVM (faster on Linux, no VirtualBox needed)
-
-### Step 1: Install libvirt and vagrant-libvirt
-
-**Fedora:**
+You only run `git clone` once. If Git says the folder already exists, enter
+this instead:
 
 ```bash
-sudo dnf install libvirt vagrant vagrant-libvirt
-sudo systemctl enable --now libvirtd
-sudo usermod -aG libvirt $USER
+cd ~/vagrant-labs-poc
 ```
 
-**Ubuntu / Debian:**
+## Step 6: Start the Assigned Profile
+
+Look at your Canvas assignment. Run **one** of the following commands in
+Terminal while you are in the `vagrant-labs-poc` folder.
+
+For the `single` profile:
 
 ```bash
-sudo apt install libvirt-daemon-system vagrant vagrant-libvirt
-sudo systemctl enable --now libvirtd
-sudo usermod -aG libvirt $USER
-```
-
-Log out and log back in for the group change to take effect.
-
-### Step 2: Clone and Start
-
-```bash
-git clone https://github.com/itsc1316-nlc/vagrant-labs-poc.git
-cd vagrant-labs-poc
 PROFILE=single vagrant up --provider=libvirt
 ```
 
-Replace `single` with the profile your instructor assigned (see the profile table in the README).
+For the `dual` profile:
 
----
+```bash
+PROFILE=dual vagrant up --provider=libvirt
+```
 
-## Connect to the Client VM
+The first start downloads Fedora and installs the lab tools. It may take 10–20
+minutes and display many lines of text. Leave Terminal open. Continue only when
+the command finishes and the `$` prompt returns.
 
-After `vagrant up` finishes:
+## Step 7: Connect to the Client VM
+
+In Terminal, enter:
 
 ```bash
 vagrant ssh client
 ```
 
-To switch to the student account:
+The prompt changes to something similar to `[vagrant@client ~]$`. You are now
+inside the Fedora Linux client VM.
+
+Switch to the student account:
 
 ```bash
 su - student
 ```
 
-Password: `fedora`
+When Fedora asks for a password, type:
 
-## Exiting the VM
+```text
+fedora
+```
 
-When you are done working inside the VM, type `exit` twice — once to log out of the student account, and once to leave the VM:
+Nothing appears while you type a password. That is normal. Press **Enter** when
+you finish. The prompt should now begin with `[student@client`.
+
+Open the assignment in Canvas and perform the lab commands there.
+
+## Step 8: Leave and Shut Down the Lab
+
+When the lab is finished, enter `exit` twice:
 
 ```bash
 exit
 exit
 ```
 
-You are now back on your own computer. Vagrant commands like `vagrant halt` only work here — **not from inside the VM**.
+- the first `exit` leaves the student account
+- the second `exit` leaves the VM and returns to your Linux Terminal
 
-## When You Are Done
-
-To shut down the VM(s):
+Only after you are back on the host computer, shut down the VM or VMs:
 
 ```bash
 vagrant halt
 ```
 
-To delete and rebuild from scratch:
+Do not run `vagrant halt` from inside Fedora. Vagrant commands control the VM
+from your host Linux system.
+
+## The Next Time You Work
+
+1. Open **Terminal**.
+2. Move into the project folder:
+
+   ```bash
+   cd ~/vagrant-labs-poc
+   ```
+
+3. Download instructor updates:
+
+   ```bash
+   git pull
+   ```
+
+4. Start the saved VM or VMs:
+
+   ```bash
+   vagrant up
+   ```
+
+5. Connect:
+
+   ```bash
+   vagrant ssh client
+   ```
+
+Vagrant remembers both the profile and libvirt provider after the first
+successful setup.
+
+## Start Over With Clean VMs
+
+This deletes the course VMs, not your files in the Linux home folder. Run this
+from Terminal in the project folder:
 
 ```bash
-vagrant destroy -f && PROFILE=single vagrant up
+vagrant destroy -f
 ```
 
-Replace `single` with the profile you are working on.
+Then repeat Step 6 with the profile named by your Canvas assignment.
+
+## If Your Instructor Requires VirtualBox
+
+The main instructions use libvirt because it is native to Linux. If your
+instructor specifically requires VirtualBox, install VirtualBox and Vagrant
+using the instructions for your Linux distribution, then use these start
+commands instead:
+
+```bash
+PROFILE=single vagrant up
+```
+
+or:
+
+```bash
+PROFILE=dual vagrant up
+```
+
+Do not install and run both libvirt and VirtualBox for this lab at the same
+time unless your instructor directs you to do so.
+
+For virtualization errors, permission errors, and other messages, see the
+[README troubleshooting table](../README.md#troubleshooting).

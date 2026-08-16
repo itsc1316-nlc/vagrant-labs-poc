@@ -1,93 +1,228 @@
-# Setup Guide — macOS (Apple Silicon / ARM)
+# Setup Guide — Mac with Apple Silicon
 
-Follow these steps to run the ITSC-1316 Linux lab on a Mac with an Apple Silicon chip (M1, M2, M3, M4, or M5).
+Use this guide if **About This Mac** lists an Apple M1, M2, M3, M4, or M5
+chip. No experience with Git, Linux, Terminal, or virtual machines is required.
 
-> **Why this guide is different:** This lab environment uses **UTM** on Apple Silicon instead of VirtualBox. UTM is a free virtualization app built for Apple Silicon.
+This lab uses **UTM** to run Fedora Linux on Apple Silicon.
+
+## Before You Start
+
+You need:
+
+- the administrator password for your Mac so you can install applications
+- an internet connection
+- about 5 GB of free storage for one VM or 10 GB for two VMs
+- the Canvas assignment that tells you to use the `single` or `dual` profile
+
+Commands in this guide are entered in **Terminal** on your Mac. Do not enter
+them inside the Fedora VM unless the guide specifically says to do so.
 
 ## Step 1: Install UTM
 
-1. Go to <https://mac.getutm.app>
-2. Click **Download** to get the free version
-3. Open the downloaded `.dmg` file
-4. Drag UTM to your Applications folder
-5. Open UTM at least once so macOS recognizes it
+UTM is the application that runs the Fedora Linux virtual machines.
 
-> You can also install via Homebrew: `brew install --cask utm`
+1. Open <https://mac.getutm.app> in your web browser.
+2. Select **Download** to download the free version.
+3. Open the downloaded `.dmg` file.
+4. Drag **UTM** into the **Applications** folder shown in the installer window.
+5. Open **Finder**, select **Applications**, and open **UTM**.
+6. If macOS asks whether you want to open an application downloaded from the
+   internet, select **Open**.
+7. After the UTM window appears, you may close it. Opening it once allows the
+   Vagrant plugin to find it later.
 
 ## Step 2: Install Vagrant
 
-Open **Terminal** (Cmd+Space, type "Terminal") and run:
+Vagrant creates and controls the course virtual machines.
+
+1. Open <https://developer.hashicorp.com/vagrant/install>.
+2. Find **macOS** and download the **ARM64** installer.
+3. Open the download and run the installer package inside it.
+4. Follow the installer prompts. Enter your Mac administrator password if
+   macOS asks for it.
+5. Close the installer when it reports that installation succeeded.
+
+## Step 3: Open Terminal and Install Git
+
+Git downloads this lab project from GitHub. macOS can install Git through its
+Command Line Tools.
+
+1. Press **Command+Space** to open Spotlight Search.
+2. Type **Terminal** and press **Return**.
+3. A window with a line ending in `%` or `$` appears. That line is the
+   **prompt**. It means Terminal is ready for a command.
+4. Enter:
+
+   ```bash
+   git --version
+   ```
+
+5. If macOS offers to install the Command Line Developer Tools, select
+   **Install**, accept the license, and wait for installation to finish.
+6. Enter `git --version` again. It should print a Git version number.
+
+Now verify Vagrant:
 
 ```bash
-brew tap hashicorp/tap
-brew install --cask hashicorp/tap/hashicorp-vagrant
+vagrant --version
 ```
 
-## Step 3: Install the UTM Vagrant Plugin
+The exact version numbers may differ. If Terminal says `command not found`,
+close Terminal, open it again, and retry before continuing.
+
+## Step 4: Install the UTM Vagrant Plugin
+
+Vagrant needs one additional plugin to control UTM. In Terminal, enter:
 
 ```bash
 vagrant plugin install vagrant_utm
 ```
 
-## Step 4: Clone the Lab Repository
-
-Still in Terminal:
+Wait until the command reports that the plugin was installed. Then verify it:
 
 ```bash
+vagrant plugin list
+```
+
+The output must include `vagrant_utm`. You only install this plugin once.
+
+## Step 5: Download the Lab Project
+
+The first command below moves to your Mac user folder. The second command
+downloads the project. The third command moves into the downloaded folder.
+
+Enter each line separately in Terminal:
+
+```bash
+cd ~
 git clone https://github.com/itsc1316-nlc/vagrant-labs-poc.git
 cd vagrant-labs-poc
 ```
 
-> If your instructor gave you a different URL, use that instead.
+Expected result:
 
-## Step 5: Start the Lab
+- `git clone` prints lines beginning with `Cloning into`
+- after `cd vagrant-labs-poc`, the prompt includes `vagrant-labs-poc`
+
+You only run `git clone` once. If Git says the folder already exists, enter
+this instead:
+
+```bash
+cd ~/vagrant-labs-poc
+```
+
+## Step 6: Start the Assigned Profile
+
+Look at your Canvas assignment. Run **one** of the following commands in
+Terminal while you are in the `vagrant-labs-poc` folder.
+
+For the `single` profile:
 
 ```bash
 PROFILE=single vagrant up --provider=utm
 ```
 
-Replace `single` with the profile your instructor assigned (see the profile table in the README). If you are using the `dual` profile (two VMs), Vagrant will start the server first, then the client.
+For the `dual` profile:
 
-This downloads and configures a Fedora Linux VM using UTM. The first run takes 10–20 minutes. Let it finish.
+```bash
+PROFILE=dual vagrant up --provider=utm
+```
 
-> If you see an error about the provider, make sure UTM is open and running in the background.
+The first start downloads Fedora and installs the lab tools. It may take 10–20
+minutes and display many lines of text. Leave Terminal open. If macOS asks UTM
+for permission to access files or the network, allow it.
 
-## Step 6: Connect to the Client VM
+Continue only when the command finishes and the `%` or `$` prompt returns.
+
+## Step 7: Connect to the Client VM
+
+In Terminal, enter:
 
 ```bash
 vagrant ssh client
 ```
 
-You are now inside the Linux client VM. To switch to the student account:
+The prompt changes to something similar to `[vagrant@client ~]$`. You are now
+inside the Fedora Linux client VM.
+
+Switch to the student account:
 
 ```bash
 su - student
 ```
 
-Password: `fedora`
+When Fedora asks for a password, type:
 
-## Exiting the VM
+```text
+fedora
+```
 
-When you are done working inside the VM, type `exit` twice — once to log out of the student account, and once to leave the VM:
+Nothing appears while you type a password. That is normal. Press **Return**
+when you finish. The prompt should now begin with `[student@client`.
+
+Open the assignment in Canvas and perform the lab commands there.
+
+## Step 8: Leave and Shut Down the Lab
+
+When the lab is finished, enter `exit` twice:
 
 ```bash
 exit
 exit
 ```
 
-You are now back on your own computer. Vagrant commands like `vagrant halt` only work here — **not from inside the VM**.
+- the first `exit` leaves the student account
+- the second `exit` leaves the VM and returns to macOS Terminal
 
-## When You Are Done
-
-To shut down the VM(s):
+Only after you are back on your Mac, shut down the VM or VMs:
 
 ```bash
 vagrant halt
 ```
 
-To delete and rebuild from scratch:
+Do not run `vagrant halt` from inside Fedora. Vagrant commands control the VM
+from macOS.
+
+## The Next Time You Work
+
+1. Open **Terminal**.
+2. Move into the project folder:
+
+   ```bash
+   cd ~/vagrant-labs-poc
+   ```
+
+3. Download instructor updates:
+
+   ```bash
+   git pull
+   ```
+
+4. Start the saved VM or VMs:
+
+   ```bash
+   vagrant up
+   ```
+
+5. Connect:
+
+   ```bash
+   vagrant ssh client
+   ```
+
+Vagrant remembers both the profile and UTM provider after the first successful
+setup.
+
+## Start Over With Clean VMs
+
+This deletes the course VMs, not your Mac files. Run this from macOS Terminal
+in the project folder:
 
 ```bash
-vagrant destroy -f && PROFILE=single vagrant up --provider=utm
+vagrant destroy -f
 ```
-Replace `single` with the profile you are working on.
+
+Then repeat Step 6 with the profile named by your Canvas assignment.
+
+For UTM errors, network problems, and other messages, see the
+[README troubleshooting table](../README.md#troubleshooting).

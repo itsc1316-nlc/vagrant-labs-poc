@@ -1,88 +1,210 @@
-# Setup Guide — macOS (Intel)
+# Setup Guide — Mac with an Intel Processor
 
-Follow these steps to run the ITSC-1316 Linux lab on an Intel-based Mac (any Mac with an Intel processor).
+Use this guide if **About This Mac** lists an Intel processor. No experience
+with Git, Linux, Terminal, or virtual machines is required.
+
+This lab uses **VirtualBox** to run Fedora Linux on an Intel Mac.
+
+## Before You Start
+
+You need:
+
+- the administrator password for your Mac so you can install applications
+- an internet connection
+- about 5 GB of free storage for one VM or 10 GB for two VMs
+- the Canvas assignment that tells you to use the `single` or `dual` profile
+
+Commands in this guide are entered in **Terminal** on your Mac. Do not enter
+them inside the Fedora VM unless the guide specifically says to do so.
 
 ## Step 1: Install VirtualBox
 
-1. Go to <https://www.virtualbox.org/wiki/Downloads>
-2. Click **OS X hosts** to download the `.dmg` file
-3. Open the `.dmg` and double-click **VirtualBox.pkg**
-4. Follow the installer wizard and accept all defaults
-5. If macOS blocks the install, go to **System Settings > Privacy & Security** and click **Open Anyway**
+VirtualBox is the application that runs the Fedora Linux virtual machines.
+
+1. Open <https://www.virtualbox.org/wiki/Downloads> in your web browser.
+2. Select **macOS / Intel hosts**. The wording may appear as **OS X hosts** on
+   older download pages.
+3. Open the downloaded `.dmg` file.
+4. Open **VirtualBox.pkg** and follow the installer prompts.
+5. Enter your Mac administrator password if macOS asks for it.
+6. If macOS blocks a required system extension, open **System Settings**,
+   select **Privacy & Security**, and follow the message that allows Oracle
+   system software. Restart the Mac if prompted.
+7. Open **VirtualBox** from the Applications folder once, then close it.
 
 ## Step 2: Install Vagrant
 
-**Option A — Homebrew (recommended):**
+Vagrant creates and controls the course virtual machines.
+
+1. Open <https://developer.hashicorp.com/vagrant/install>.
+2. Find **macOS** and download the **AMD64** installer.
+3. Open the download and run the installer package inside it.
+4. Follow the installer prompts. Enter your Mac administrator password if
+   macOS asks for it.
+5. Close the installer when it reports that installation succeeded.
+
+## Step 3: Open Terminal and Install Git
+
+Git downloads this lab project from GitHub. macOS can install Git through its
+Command Line Tools.
+
+1. Press **Command+Space** to open Spotlight Search.
+2. Type **Terminal** and press **Return**.
+3. A window with a line ending in `%` or `$` appears. That line is the
+   **prompt**. It means Terminal is ready for a command.
+4. Enter:
+
+   ```bash
+   git --version
+   ```
+
+5. If macOS offers to install the Command Line Developer Tools, select
+   **Install**, accept the license, and wait for installation to finish.
+6. Enter `git --version` again. It should print a Git version number.
+
+Now verify Vagrant:
 
 ```bash
-brew tap hashicorp/tap
-brew install --cask hashicorp/tap/hashicorp-vagrant
+vagrant --version
 ```
 
-**Option B — Direct download:**
+The exact version numbers may differ. If Terminal says `command not found`,
+close Terminal, open it again, and retry before continuing.
 
-1. Go to <https://developer.hashicorp.com/vagrant/downloads>
-2. Download the **macOS (Intel)** installer
-3. Open the download and run the included installer package
+## Step 4: Download the Lab Project
 
-## Step 3: Clone the Lab Repository
+The first command below moves to your Mac user folder. The second command
+downloads the project. The third command moves into the downloaded folder.
 
-Open **Terminal** (Cmd+Space, type "Terminal") and run:
+Enter each line separately in Terminal:
 
 ```bash
+cd ~
 git clone https://github.com/itsc1316-nlc/vagrant-labs-poc.git
 cd vagrant-labs-poc
 ```
 
-> If your instructor gave you a different URL, use that instead.
+Expected result:
 
-## Step 4: Start the Lab
+- `git clone` prints lines beginning with `Cloning into`
+- after `cd vagrant-labs-poc`, the prompt includes `vagrant-labs-poc`
+
+You only run `git clone` once. If Git says the folder already exists, enter
+this instead:
+
+```bash
+cd ~/vagrant-labs-poc
+```
+
+## Step 5: Start the Assigned Profile
+
+Look at your Canvas assignment. Run **one** of the following commands in
+Terminal while you are in the `vagrant-labs-poc` folder.
+
+For the `single` profile:
 
 ```bash
 PROFILE=single vagrant up
 ```
 
-Replace `single` with the profile your instructor assigned (see the profile table in the README).
+For the `dual` profile:
 
-This downloads and configures a Fedora Linux VM. The first run takes 10–20 minutes. Let it finish.
+```bash
+PROFILE=dual vagrant up
+```
 
-## Step 5: Connect to the Client VM
+The first start downloads Fedora and installs the lab tools. It may take 10–20
+minutes and display many lines of text. Leave Terminal open. Continue only when
+the command finishes and the `%` or `$` prompt returns.
+
+## Step 6: Connect to the Client VM
+
+In Terminal, enter:
 
 ```bash
 vagrant ssh client
 ```
 
-You are now inside the Linux client VM. To switch to the student account:
+The prompt changes to something similar to `[vagrant@client ~]$`. You are now
+inside the Fedora Linux client VM.
+
+Switch to the student account:
 
 ```bash
 su - student
 ```
 
-Password: `fedora`
+When Fedora asks for a password, type:
 
-## Exiting the VM
+```text
+fedora
+```
 
-When you are done working inside the VM, type `exit` twice — once to log out of the student account, and once to leave the VM:
+Nothing appears while you type a password. That is normal. Press **Return**
+when you finish. The prompt should now begin with `[student@client`.
+
+Open the assignment in Canvas and perform the lab commands there.
+
+## Step 7: Leave and Shut Down the Lab
+
+When the lab is finished, enter `exit` twice:
 
 ```bash
 exit
 exit
 ```
 
-You are now back on your own computer. Vagrant commands like `vagrant halt` only work here — **not from inside the VM**.
+- the first `exit` leaves the student account
+- the second `exit` leaves the VM and returns to macOS Terminal
 
-## When You Are Done
-
-To shut down the VM(s):
+Only after you are back on your Mac, shut down the VM or VMs:
 
 ```bash
 vagrant halt
 ```
 
-To delete and rebuild from scratch:
+Do not run `vagrant halt` from inside Fedora. Vagrant commands control the VM
+from macOS.
+
+## The Next Time You Work
+
+1. Open **Terminal**.
+2. Move into the project folder:
+
+   ```bash
+   cd ~/vagrant-labs-poc
+   ```
+
+3. Download instructor updates:
+
+   ```bash
+   git pull
+   ```
+
+4. Start the saved profile:
+
+   ```bash
+   vagrant up
+   ```
+
+5. Connect:
+
+   ```bash
+   vagrant ssh client
+   ```
+
+Vagrant remembers the profile after the first successful setup.
+
+## Start Over With Clean VMs
+
+This deletes the course VMs, not your Mac files. Run this from macOS Terminal
+in the project folder:
 
 ```bash
-vagrant destroy -f && PROFILE=single vagrant up
+vagrant destroy -f
 ```
 
-Replace `single` with the profile you are working on.
+Then repeat Step 5 with the profile named by your Canvas assignment.
+
+For additional error messages and solutions, see the
+[README troubleshooting table](../README.md#troubleshooting).

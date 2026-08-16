@@ -1,32 +1,46 @@
 # ITSC-1316 Linux Lab Environment
 
-A Vagrant-based local lab environment for the **ITSC-1316 Linux Primary Shell** course. This repository gives you Fedora Linux virtual machines on your own computer so you can practice hands-on Linux skills without a remote server.
+This project creates one or two Fedora Linux **virtual machines (VMs)** for
+hands-on practice in the **ITSC-1316 Linux Primary Shell** course. A VM is a
+practice computer that runs safely inside your normal computer; it does not
+replace Windows, macOS, or Linux on the host.
 
-## Quick Start
+The setup guides install three tools: Git downloads the project, Vagrant
+creates and controls its VMs, and a virtualization application runs them.
 
-Once you have Vagrant installed and this repo cloned, start the profile your instructor assigned:
+## Start Here
 
-```bash
-PROFILE=single vagrant up
-```
+You do **not** need to know Linux, Git, Vagrant, or virtual machines before
+using this project. Choose the guide for your computer. It explains what to
+install, which application to open, what each command does, and how to check
+that each step worked.
 
-Replace `single` with the profile you need (see the table below).
+| Your computer | Setup guide |
+|---------------|-------------|
+| Windows 10 or 11 | [Windows setup](docs/setup-windows.md) |
+| Mac with an Apple M-series chip | [Apple Silicon Mac setup](docs/setup-macos-arm.md) |
+| Mac with an Intel processor | [Intel Mac setup](docs/setup-macos-intel.md) |
+| Fedora, Ubuntu, Debian, or similar Linux | [Linux setup](docs/setup-linux.md) |
 
-> **Mac with Apple Silicon (M1–M5)?** Add `--provider=utm`:
-> ```bash
-> PROFILE=single vagrant up --provider=utm
-> ```
+If you have a Mac and do not know which processor it has:
 
-> **Linux with KVM/libvirt?** Add `--provider=libvirt`:
-> ```bash
-> PROFILE=single vagrant up --provider=libvirt
-> ```
+1. Open the **Apple menu** in the upper-left corner.
+2. Select **About This Mac**.
+3. Look for **Chip** or **Processor**. Choose the Apple Silicon guide if it
+   says Apple M1, M2, M3, M4, or M5. Choose the Intel guide if it says Intel.
 
-Then connect to the client VM:
+Your Canvas assignment tells you whether to use the `single` or `dual`
+profile. Keep that assignment open while following the setup guide.
 
-```bash
-vagrant ssh client
-```
+When a guide shows a command in a shaded box:
+
+1. Click inside the terminal application named by the guide.
+2. Type or paste **one line at a time**. Do not type the word `bash`, the
+   backticks, or any `$` prompt shown by your terminal.
+3. Press **Enter** and wait for the prompt to return before entering the next
+   line.
+4. If a command displays an error, stop and use the troubleshooting section
+   instead of continuing.
 
 ## Profiles
 
@@ -160,13 +174,18 @@ Replace `single` with the profile you are working on (add `--provider=utm` or `-
 | **UTM reports that port 4444 is already in use** | Rebuild with another host port, for example: `vagrant destroy -f && UTM_NET_PORT=45444 PROFILE=dual vagrant up --provider=utm`. |
 | **UTM dual profile cannot start the client** | Start the listener first: `PROFILE=dual vagrant up server --provider=utm`, then `vagrant up client --provider=utm`. A normal `PROFILE=dual vagrant up --provider=utm` already uses this order. |
 
-## Requirements
+## What the Setup Guides Install
 
-- **Vagrant** 2.4 or later
-- **A hypervisor:** VirtualBox (Windows, macOS Intel, Linux), UTM (macOS Apple Silicon), or libvirt (Linux)
-- **~3 GB free disk space** for one VM (single) or ~5 GB for two VMs (dual)
-- **Internet access** for the initial box download
-- **Git** for cloning and updating this repository
+You do not need to install these before opening your platform guide. The guide
+walks you through each installation:
+
+- **Git** to download and update this project
+- **Vagrant** to create and control the VMs
+- **A virtualization provider:** VirtualBox on Windows or Intel Mac, UTM on
+  Apple Silicon, or libvirt on Linux
+
+Your computer also needs an internet connection and about 5 GB of free storage
+for the `single` profile or 10 GB for the `dual` profile.
 
 ## Accounts
 
