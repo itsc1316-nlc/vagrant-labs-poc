@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # common.sh — runs on every node before profile-specific provisioning
 # Idempotent: safe to run multiple times
-set -euxo pipefail
+set -euo pipefail
 
 # ─── Package installation ─────────────────────────────────────
 dnf install -y --skip-unavailable \
@@ -15,7 +15,6 @@ dnf install -y --skip-unavailable \
   firewalld \
   nftables \
   tcpdump \
-  podman \
   openssh-server \
   man-db \
   man-pages \
@@ -26,19 +25,22 @@ dnf install -y --skip-unavailable \
   elinks \
   acl \
   plocate \
+  sudo \
   tree
 
 # ─── Enable and start core services ───────────────────────────
+systemctl enable --now NetworkManager
 systemctl enable --now firewalld
 systemctl enable --now sshd
 
-# ─── Create student user ──────────────────────────────────────
+# ─── Create student user and enforce its lab credentials ──────
 if ! id student &>/dev/null; then
   useradd -m -s /bin/bash student
-  echo "student:fedora" | chpasswd
-  echo "student ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/student
-  chmod 0440 /etc/sudoers.d/student
 fi
+echo "student:fedora" | chpasswd
+echo "student ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/student
+chmod 0440 /etc/sudoers.d/student
+visudo -cf /etc/sudoers.d/student
 
 # ─── IOTBN groups (used by filesystem/permissions labs) ──────
 for group in sysadmins webdevs designers managers creative; do

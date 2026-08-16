@@ -3,48 +3,33 @@
 # Runs on the client VM after common.sh
 # Used by: networking, DNS, routing labs
 # Idempotent: safe to run multiple times
-set -euxo pipefail
+set -euo pipefail
 
-# ─── Assign static IP on the lab network interface ───────────
-# The QEMU socket NIC has a specific MAC. We use nmcli to create a
-# persistent connection profile so NetworkManager keeps the IP.
-# On VirtualBox/libvirt, the private_network already has the IP.
-LAB_IP="192.168.56.10"
-LAB_MAC="52:54:00:12:34:10"
-
-# If the IP is already assigned, we're done
-if ip -4 addr show | grep -q "$LAB_IP"; then
-  echo "IP $LAB_IP already assigned, skipping."
-else
-  # Find the interface matching our QEMU socket NIC MAC
-  LAB_IFACE=""
-  for iface in $(ls /sys/class/net/ | grep -v lo); do
-    mac=$(cat /sys/class/net/"$iface"/address 2>/dev/null || echo "")
-    if [ "$mac" = "$LAB_MAC" ]; then
-      LAB_IFACE="$iface"
-      break
-    fi
-  done
-
-  if [ -n "$LAB_IFACE" ]; then
-    # Create a persistent nmcli connection so the IP survives NetworkManager
-    nmcli con add type ethernet con-name labnet ifname "$LAB_IFACE" ipv4.method manual ipv4.addresses "${LAB_IP}/24" 2>/dev/null || true
-    nmcli con up labnet 2>/dev/null || true
-    # Fallback: direct ip command if nmcli fails
-    ip addr add "${LAB_IP}/24" dev "$LAB_IFACE" 2>/dev/null || true
-    ip link set "$LAB_IFACE" up
-    echo "Assigned $LAB_IP to $LAB_IFACE (MAC: $LAB_MAC)"
-  fi
+# ─── Locate the configured lab interface ──────────────────────
+LAB_CIDR="192.168.56.10/24"
+LAB_IFACE=$(ip -4 -o addr show | awk -v cidr="$LAB_CIDR" '$4 == cidr { print $2; exit }')
+if [ -z "$LAB_IFACE" ]; then
+  echo "ERROR: No interface has $LAB_CIDR." >&2
+  exit 1
 fi
 
-# ─── Point client DNS at the server's dnsmasq ────────────────
-cat > /etc/resolv.conf << 'DNS_EOF'
-nameserver 192.168.56.20
-search corp.local
-DNS_EOF
-
-# Make resolv.conf immutable so NetworkManager does not overwrite it
-chattr +i /etc/resolv.conf 2>/dev/null || true
+# ─── Use the server for DNS on the lab connection ─────────────
+# Remove immutability left by releases that wrote /etc/resolv.conf directly.
+chattr -i /etc/resolv.conf 2>/dev/null || true
+LAB_CONNECTION_UUID=$(
+  nmcli -t -f UUID,DEVICE connection show --active |
+    awk -F: -v iface="$LAB_IFACE" '$2 == iface { print $1; exit }'
+)
+if [ -z "$LAB_CONNECTION_UUID" ]; then
+  echo "ERROR: NetworkManager has no active connection for $LAB_IFACE." >&2
+  exit 1
+fi
+nmcli connection modify uuid "$LAB_CONNECTION_UUID" \
+  ipv4.dns "192.168.56.20" \
+  ipv4.dns-search "corp.local" \
+  ipv4.ignore-auto-dns yes \
+  ipv4.dns-priority -50
+nmcli connection up uuid "$LAB_CONNECTION_UUID" ifname "$LAB_IFACE"
 
 # ─── Add /etc/hosts entries for the private network ───────────
 grep -q "192.168.56.20" /etc/hosts || cat >> /etc/hosts << 'HOSTS_EOF'
@@ -53,44 +38,34 @@ grep -q "192.168.56.20" /etc/hosts || cat >> /etc/hosts << 'HOSTS_EOF'
 192.168.56.10  client  client.corp.local
 HOSTS_EOF
 
-# ─── Set up SSH key for student to access server ──────────────
+# ─── SSH config for convenient server access ──────────────────
+# Authentication uses the documented student password. Labs that teach SSH
+# keys can add them without fighting an instructor-created private key.
 STUDENT_HOME="/home/student"
-if [ ! -f "$STUDENT_HOME/.ssh/id_ed25519" ]; then
-  sudo -u student mkdir -p "$STUDENT_HOME/.ssh"
-  sudo -u student ssh-keygen -t ed25519 -N "" -f "$STUDENT_HOME/.ssh/id_ed25519"
-fi
-
-# Add server's host key to known_hosts (may fail if server isn't up yet)
-sudo -u student bash -c "ssh-keyscan -H 192.168.56.20 server.corp.local 2>/dev/null >> ~/.ssh/known_hosts" || true
-sudo -u student bash -c "ssh-keyscan -H 192.168.56.10 client.corp.local 2>/dev/null >> ~/.ssh/known_hosts" || true
-
-# Ensure correct ownership
-chown -R student:student "$STUDENT_HOME/.ssh"
-chmod 700 "$STUDENT_HOME/.ssh"
-chmod 600 "$STUDENT_HOME/.ssh/id_ed25519"
-chmod 644 "$STUDENT_HOME/.ssh/id_ed25519.pub"
-
-# ─── SSH config for easy server access ───────────────────────
+install -d -m 0700 -o student -g student "$STUDENT_HOME/.ssh"
 cat > "$STUDENT_HOME/.ssh/config" << 'SSHCFG_EOF'
 Host server
     HostName 192.168.56.20
     User student
-    IdentityFile ~/.ssh/id_ed25519
-    StrictHostKeyChecking no
+    StrictHostKeyChecking accept-new
 
 Host server-corp
     HostName server.corp.local
     User student
-    IdentityFile ~/.ssh/id_ed25519
-    StrictHostKeyChecking no
+    StrictHostKeyChecking accept-new
 SSHCFG_EOF
-
 chown student:student "$STUDENT_HOME/.ssh/config"
-chmod 600 "$STUDENT_HOME/.ssh/config"
+chmod 0600 "$STUDENT_HOME/.ssh/config"
 
 # ─── Firewall ─────────────────────────────────────────────────
 firewall-cmd --permanent --add-service=ssh
 firewall-cmd --reload
+
+# ─── Verify the dual-VM contract before reporting success ─────
+ping -c 1 -W 3 192.168.56.20 >/dev/null
+test "$(dig +short @192.168.56.20 server.corp.local A)" = "192.168.56.20"
+WEB_RESPONSE=$(curl --fail --silent --show-error http://192.168.56.20/)
+grep -Fq "ITSC-1316 Network Lab" <<<"$WEB_RESPONSE"
 
 # ─── MOTD ─────────────────────────────────────────────────────
 cat > /etc/motd << 'MOTDEOF'

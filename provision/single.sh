@@ -3,7 +3,7 @@
 # Runs on the client VM after common.sh
 # Used by: filesystem, permissions, shell scripting labs
 # Idempotent: safe to run multiple times
-set -euxo pipefail
+set -euo pipefail
 
 # All base packages, IOTBN groups, /opt/iotbn, and student user
 # are already set up by common.sh. This script handles MOTD only.

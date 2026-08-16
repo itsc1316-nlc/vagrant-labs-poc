@@ -37,7 +37,6 @@ Each lab in the course uses one of two VM profiles. Check which profile your lab
 | `single` | 1 VM (client) | Fedora VM with full toolset: ACL tools, plocate, IOTBN groups, /opt/iotbn directory, networking utilities. Student does all work on one machine. | `PROFILE=single vagrant up` |
 | `dual` | 2 VMs (client + server) | Same as single plus a server VM running dnsmasq (DNS) and httpd (web server) on a private network. For labs that need cross-machine networking. | `PROFILE=dual vagrant up` |
 
-
 ### Which Profile Should I Use?
 
 | Profile | Used For | Examples |
@@ -58,10 +57,10 @@ When in doubt, check your lab instructions on Canvas or ask your instructor.
 │  ┌─────────────┐                  │
 │  │   client    │                  │
 │  │ Fedora VM   │                  │
-│  │             │                  │
-│  │ 192.168.56. │                  │
-│  │    10       │                  │
-│  │             │                  │
+│  │ One client  │                  │
+│  │ VM; no lab  │                  │
+│  │ network is  │                  │
+│  │ required    │                  │
 │  │  student    │                  │
 │  │  workspace  │                  │
 │  └─────────────┘                  │
@@ -89,6 +88,10 @@ When in doubt, check your lab instructions on Canvas or ask your instructor.
 │                                              │
 └──────────────────────────────────────────────┘
 ```
+
+VirtualBox and libvirt provide this private network natively. On Apple
+Silicon, only the UTM provider uses a QEMU TCP socket to create the same
+isolated link. The lab addresses inside the VMs stay the same.
 
 ## After You Log In
 
@@ -146,15 +149,15 @@ Replace `single` with the profile you are working on (add `--provider=utm` or `-
 
 | Problem | Solution |
 |---------|----------|
-| **"You must specify a profile"** | Always include `PROFILE=single` or `PROFILE=dual` when running `vagrant up`. After the first time, other commands like `vagrant ssh` will remember your choice. |
-| **"VT-x not enabled" or "virtualization not enabled"** | Reboot your computer, enter BIOS/UEFI settings, and enable Intel VT-x or AMD-V. This is a one-time setup. Search your computer model + "enable virtualization" for specific steps. |
-| **"Provider not found" or "No usable provider"** | Make sure VirtualBox (or UTM on Apple Silicon) is installed and running. Re-open the app once before trying `vagrant up` again. |
-| **"Network conflict" or "192.168.56.x already in use"** | Another VirtualBox network is using the same subnet. Run `VBoxManage hostonlyif remove` to clean up old adapters, or shut down other VMs. |
-| **VMs start but can't ping each other** | Run `vagrant reload` to restart the VMs. If that fails, `vagrant destroy -f && PROFILE=dual vagrant up` (replace with your profile). |
-| **DNS resolution fails from client** | Check that the server is running: `vagrant status`. Then: `vagrant ssh server -c "systemctl status dnsmasq"`. If dnsmasq is down, run `vagrant reload server`. |
-| **`vagrant ssh` says connection refused** | The VM may still be booting. Wait 30 seconds and try again. If it persists, `vagrant reload`. |
-| **Apple Silicon: UTM not found** | Make sure UTM is installed and has been opened at least once. Verify: `vagrant plugin list` shows `vagrant_utm`. |
-| **UTM dual: VMs can't ping each other** | The server VM must start first so the QEMU socket exists before the client connects. Run `vagrant up server --provider=utm` first, then `vagrant up client --provider=utm`. |
+| **"You must specify a profile"** | Include `PROFILE=single` or `PROFILE=dual` with the first `vagrant up`. Later commands remember the validated profile. |
+| **"VT-x not enabled" or "virtualization not enabled"** | Reboot your computer, enter BIOS/UEFI settings, and enable Intel VT-x or AMD-V. Search your computer model plus "enable virtualization" for the exact steps. |
+| **"Provider not found" or "No usable provider"** | Make sure VirtualBox, libvirt, or UTM is installed for your platform. On Apple Silicon, open UTM once and verify that `vagrant plugin list` includes `vagrant_utm`. |
+| **"Network conflict" or "192.168.56.x already in use"** | Shut down unrelated VMs using that subnet. In VirtualBox, use **Tools > Network** to inspect host-only networks before removing anything. |
+| **VMs start but cannot ping each other** | Run `vagrant provision`. If provisioning still fails, rebuild with `vagrant destroy -f && PROFILE=dual vagrant up` and add your provider flag. |
+| **DNS resolution fails from client** | Check `vagrant status`, then run `vagrant ssh server -c "sudo systemctl status dnsmasq"`. Reapply the server configuration with `vagrant provision server`. |
+| **`vagrant ssh` says connection refused** | The VM may still be booting. Wait 30 seconds and try again. If it persists, run `vagrant reload`. |
+| **UTM reports that port 4444 is already in use** | Rebuild with another host port, for example: `vagrant destroy -f && UTM_NET_PORT=45444 PROFILE=dual vagrant up --provider=utm`. |
+| **UTM dual profile cannot start the client** | Start the listener first: `PROFILE=dual vagrant up server --provider=utm`, then `vagrant up client --provider=utm`. A normal `PROFILE=dual vagrant up --provider=utm` already uses this order. |
 
 ## Requirements
 
@@ -162,14 +165,15 @@ Replace `single` with the profile you are working on (add `--provider=utm` or `-
 - **A hypervisor:** VirtualBox (Windows, macOS Intel, Linux), UTM (macOS Apple Silicon), or libvirt (Linux)
 - **~3 GB free disk space** for one VM (single) or ~5 GB for two VMs (dual)
 - **Internet access** for the initial box download
+- **Git** for cloning and updating this repository
 
 ## Accounts
 
 | VM | User | Password | Sudo |
 |----|------|----------|------|
-| client | `vagrant` | `vagrant` | yes |
+| client | `vagrant` | Vagrant-managed SSH key | yes |
 | client | `student` | `fedora` | yes (passwordless) |
-| server | `vagrant` | `vagrant` | yes |
+| server | `vagrant` | Vagrant-managed SSH key | yes |
 | server | `student` | `fedora` | yes (passwordless) |
 
 ## License

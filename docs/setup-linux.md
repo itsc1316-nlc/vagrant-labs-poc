@@ -2,7 +2,7 @@
 
 Follow these steps to run the ITSC-1316 Linux lab on a Linux computer (Fedora, Ubuntu, Debian, or similar).
 
-## Option A: VirtualBox (easiest, works everywhere)
+## Option A: VirtualBox (common on x86-64 Linux)
 
 ### Step 1: Install VirtualBox
 
@@ -53,7 +53,7 @@ cd vagrant-labs-poc
 PROFILE=single vagrant up
 ```
 
-Replace `single` with the profile your instructor assigned (see the Lab-to-Profile table in the README).
+Replace `single` with the profile your instructor assigned (see the profile table in the README).
 
 ---
 
@@ -87,7 +87,7 @@ cd vagrant-labs-poc
 PROFILE=single vagrant up --provider=libvirt
 ```
 
-Replace `single` with the profile your instructor assigned (see the Lab-to-Profile table in the README).
+Replace `single` with the profile your instructor assigned (see the profile table in the README).
 
 ---
 

@@ -3,61 +3,41 @@
 # Runs on the server VM after common.sh
 # Used by: networking, DNS, routing labs
 # Idempotent: safe to run multiple times
-set -euxo pipefail
+set -euo pipefail
 
-# ─── Assign static IP on the lab network interface ───────────
-# The QEMU socket NIC has a specific MAC. We use nmcli to create a
-# persistent connection profile so NetworkManager keeps the IP.
-# On VirtualBox/libvirt, the private_network already has the IP.
-LAB_IP="192.168.56.20"
-LAB_MAC="52:54:00:12:34:20"
-
-# If the IP is already assigned, we're done
-if ip -4 addr show | grep -q "$LAB_IP"; then
-  echo "IP $LAB_IP already assigned, skipping."
-else
-  # Find the interface matching our QEMU socket NIC MAC
-  LAB_IFACE=""
-  for iface in $(ls /sys/class/net/ | grep -v lo); do
-    mac=$(cat /sys/class/net/"$iface"/address 2>/dev/null || echo "")
-    if [ "$mac" = "$LAB_MAC" ]; then
-      LAB_IFACE="$iface"
-      break
-    fi
-  done
-
-  if [ -n "$LAB_IFACE" ]; then
-    # Create a persistent nmcli connection so the IP survives NetworkManager
-    nmcli con add type ethernet con-name labnet ifname "$LAB_IFACE" ipv4.method manual ipv4.addresses "${LAB_IP}/24" 2>/dev/null || true
-    nmcli con up labnet 2>/dev/null || true
-    # Fallback: direct ip command if nmcli fails
-    ip addr add "${LAB_IP}/24" dev "$LAB_IFACE" 2>/dev/null || true
-    ip link set "$LAB_IFACE" up
-    echo "Assigned $LAB_IP to $LAB_IFACE (MAC: $LAB_MAC)"
-  fi
+# ─── Locate the configured lab interface ──────────────────────
+LAB_CIDR="192.168.56.20/24"
+LAB_IFACE=$(ip -4 -o addr show | awk -v cidr="$LAB_CIDR" '$4 == cidr { print $2; exit }')
+if [ -z "$LAB_IFACE" ]; then
+  echo "ERROR: No interface has $LAB_CIDR." >&2
+  exit 1
 fi
 
 # ─── Install server-side packages ─────────────────────────────
 dnf install -y \
   httpd \
-  nginx \
   dnsmasq \
   rsync
 
-# ─── Configure dnsmasq as local DNS for the lab ──────────────
-cat > /etc/dnsmasq.d/corp-local.conf << 'DNS_EOF'
+# ─── Configure dnsmasq as local DNS for the lab ───────────────
+# Keep the host's NetworkManager resolver unchanged: dnsmasq reads those
+# upstream servers when forwarding names outside corp.local.
+cat > /etc/dnsmasq.d/corp-local.conf << DNS_EOF
 # Lab DNS entries for ITSC-1316 network lab
+interface=lo
+interface=${LAB_IFACE}
+bind-dynamic
+domain-needed
+bogus-priv
+local=/corp.local/
 address=/server.corp.local/192.168.56.20
 address=/client.corp.local/192.168.56.10
 address=/fileserver.corp.local/192.168.56.20
-local=/corp.local/
 DNS_EOF
 
-# Override resolv.conf so the server itself uses dnsmasq
-echo "nameserver 127.0.0.1" > /etc/resolv.conf
-echo "search corp.local" >> /etc/resolv.conf
-
-systemctl enable --now dnsmasq
+dnsmasq --test
+systemctl enable dnsmasq
+systemctl restart dnsmasq
 
 # ─── Simple web server on port 80 ────────────────────────────
 mkdir -p /var/www/html
@@ -74,19 +54,13 @@ cat > /var/www/html/index.html << 'HTML_EOF'
 </html>
 HTML_EOF
 
-# Disable nginx to avoid port conflict, use httpd as the primary web server
-systemctl disable nginx 2>/dev/null || true
 systemctl enable --now httpd
 
-# ─── Firewall: open ports for the lab ─────────────────────────
+# ─── Firewall: open only services provided by this lab ────────
 firewall-cmd --permanent --add-service=http
-firewall-cmd --permanent --add-service=https
 firewall-cmd --permanent --add-service=dns
 firewall-cmd --permanent --add-service=ssh
 firewall-cmd --reload
-
-# ─── SSH host key for client to trust ─────────────────────────
-ssh-keygen -A
 
 echo "Dual-VM server provisioning complete."
 echo "  Web server:  http://192.168.56.20"

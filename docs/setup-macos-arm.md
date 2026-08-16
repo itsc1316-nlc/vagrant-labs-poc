@@ -2,7 +2,7 @@
 
 Follow these steps to run the ITSC-1316 Linux lab on a Mac with an Apple Silicon chip (M1, M2, M3, M4, or M5).
 
-> **Why this guide is different:** VirtualBox does not support Apple Silicon. We use **UTM** instead, which is a free virtualization app built for Apple Silicon.
+> **Why this guide is different:** This lab environment uses **UTM** on Apple Silicon instead of VirtualBox. UTM is a free virtualization app built for Apple Silicon.
 
 ## Step 1: Install UTM
 

@@ -13,8 +13,8 @@ Follow these steps to run the ITSC-1316 Linux lab on Windows 10 or 11 (Home or P
 ## Step 2: Install Vagrant
 
 1. Go to <https://developer.hashicorp.com/vagrant/downloads>
-2. Download the **Windows** installer (`.exe`)
-3. Run the installer and follow the wizard
+2. Download the **Windows AMD64** installer
+3. Run the downloaded installer and follow the wizard
 4. Restart your computer after installation finishes
 
 ## Step 3: Install Git
@@ -43,7 +43,7 @@ Still in Git Bash, in the `vagrant-labs-poc` folder:
 PROFILE=single vagrant up
 ```
 
-Replace `single` with the profile your instructor assigned (see the Lab-to-Profile table in the README).
+Replace `single` with the profile your instructor assigned (see the profile table in the README).
 
 This will download a Fedora Linux VM and set it up. It may take 10–20 minutes the first time. You will see a lot of text scroll by — that is normal.
 

@@ -22,8 +22,8 @@ brew install --cask hashicorp/tap/hashicorp-vagrant
 **Option B — Direct download:**
 
 1. Go to <https://developer.hashicorp.com/vagrant/downloads>
-2. Download the **macOS (Intel)** `.dmg` file
-3. Open it and drag Vagrant to your Applications folder
+2. Download the **macOS (Intel)** installer
+3. Open the download and run the included installer package
 
 ## Step 3: Clone the Lab Repository
 
@@ -42,7 +42,7 @@ cd vagrant-labs-poc
 PROFILE=single vagrant up
 ```
 
-Replace `single` with the profile your instructor assigned (see the Lab-to-Profile table in the README).
+Replace `single` with the profile your instructor assigned (see the profile table in the README).
 
 This downloads and configures a Fedora Linux VM. The first run takes 10–20 minutes. Let it finish.
 
